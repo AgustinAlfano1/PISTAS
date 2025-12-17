@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adivina el Número</title>
+
+<!-- Favicon -->
+
+<link rel="icon" href="data:image/svg+xml,
+<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
+<text y=%22.9em%22 font-size=%2290%22>🎄</text>
+</svg>">
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: repeating-linear-gradient(
+      45deg,
+      #c62828,
+      #c62828 20px,
+      #2e7d32 20px,
+      #2e7d32 40px
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .contenedor {
+    background: white;
+    padding: 30px 25px;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+
+  h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .fila {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  input {
+    width: 120px;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  button {
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .mensaje {
+    margin-top: 15px;
+    font-size: 18px;
+    min-height: 24px;
+  }
+
+  .exito {
+    color: green;
+    background: white;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="contenedor">
+  <h1>Adivina el número (de 1 a 100)</h1>
+
+  <div class="fila">
+    <input type="number" id="numero" min="1" max="100" placeholder="?">
+    <button onclick="validar()">Enviar</button>
+  </div>
+
+  <div class="mensaje" id="mensaje"></div>
+</div>
+
+<script>
+  const NUMERO_SECRETO = 72;
+
+  function validar() {
+    const input = document.getElementById('numero');
+    const mensaje = document.getElementById('mensaje');
+    const valor = parseInt(input.value);
+
+    mensaje.className = 'mensaje';
+
+    if (isNaN(valor) || valor < 1 || valor > 100) {
+      mensaje.textContent = 'Ingresá un número válido entre 1 y 100';
+      input.value = '';
+      return;
+    }
+
+    if (valor === NUMERO_SECRETO) {
+      mensaje.classList.add('exito');
+      mensaje.textContent = 'Muy bien Jime, encontraste el número que estaba pensando... ahora acercate al Locker del número que adivinaste para conseguir tu pista!! 😁';
+      input.value = '';
+      return;
+    }
+
+    if (valor >= 1 && valor <= 35) mensaje.textContent = 'Mucho más alto';
+    else if (valor >= 36 && valor <= 65) mensaje.textContent = 'Más alto';
+    else if (valor >= 66 && valor <= 71) mensaje.textContent = 'Un porquito más alto';
+    else if (valor >= 73 && valor <= 85) mensaje.textContent = 'Un porquito más bajo';
+    else if (valor >= 86 && valor <= 100) mensaje.textContent = 'Más bajo';
+
+    input.value = '';
+  }
+</script>
+
+</body>
+</html>
