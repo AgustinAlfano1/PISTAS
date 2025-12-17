@@ -27,6 +27,29 @@
     margin: 10px 0;
   }
 
+  .zona-ahorcado {
+    position: relative;
+    margin-top: 10px;
+  }
+
+  canvas {
+    display: block;
+    margin: auto;
+  }
+
+  .mensaje-final {
+    position: absolute;
+    top: -60px;
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    display: none;
+  }
+
+  .mensaje-rojo { color: red; }
+  .mensaje-verde { color: green; }
+
   .teclado {
     margin-top: 30px;
     max-width: 420px;
@@ -48,51 +71,6 @@
     cursor: not-allowed;
   }
 
-  canvas {
-    margin-top: 20px;
-  }
-
-  .cruz {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100px;
-    height: 100px;
-    transform: translate(-50%, -50%);
-    display: none;
-    z-index: 1000;
-  }
-
-  .cruz::before,
-  .cruz::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 10px;
-    background: red;
-    top: 45px;
-    left: 0;
-  }
-
-  .cruz::before { transform: rotate(45deg); }
-  .cruz::after { transform: rotate(-45deg); }
-
-  .mensaje-final {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 32px;
-    font-weight: bold;
-    text-align: center;
-    display: none;
-    z-index: 2000;
-    padding: 20px;
-  }
-
-  .mensaje-rojo { color: red; }
-  .mensaje-verde { color: green; }
-
   .reiniciar {
     margin-top: 20px;
     padding: 10px 20px;
@@ -101,14 +79,32 @@
     cursor: pointer;
   }
 
+  .cruz {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background: transparent;
+    display: none;
+    z-index: 2000;
+  }
+
+  .cruz::before,
+  .cruz::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 20%;
+    background: red;
+    top: 40%;
+    left: 0;
+  }
+
+  .cruz::before { transform: rotate(45deg); }
+  .cruz::after { transform: rotate(-45deg); }
+
   @media (max-width: 600px) {
-    .linea {
-      font-size: 26px;
-      letter-spacing: 6px;
-    }
-    .mensaje-final {
-      font-size: 24px;
-    }
+    .linea { font-size: 26px; }
+    .mensaje-final { font-size: 22px; }
   }
 </style>
 </head>
@@ -119,32 +115,34 @@
   <div class="linea" id="linea2"></div>
 </div>
 
-<canvas id="ahorcado" width="200" height="250"></canvas>
+<div class="zona-ahorcado">
+  <div class="mensaje-final" id="mensajeFinal"></div>
+  <canvas id="ahorcado" width="200" height="250"></canvas>
+</div>
 
 <div class="teclado" id="teclado"></div>
 
-<button class="reiniciar" id="reiniciar" onclick="reiniciarJuego()">Reintentar</button>
+<button class="reiniciar" id="reiniciar" onclick="iniciarJuego()">Reintentar</button>
 
 <div class="cruz" id="cruz"></div>
-<div class="mensaje-final" id="mensajeFinal"></div>
 
 <script>
   const frase1 = "LABURAMOS";
   const frase2 = "CERQUITA";
   const maxErrores = 6;
 
-  let letrasUsadas;
-  let errores;
-  let juegoTerminado;
+  let letrasUsadas = [];
+  let errores = 0;
+  let juegoTerminado = false;
 
   const linea1El = document.getElementById("linea1");
   const linea2El = document.getElementById("linea2");
   const tecladoEl = document.getElementById("teclado");
-  const cruzEl = document.getElementById("cruz");
+  const mensajeFinal = document.getElementById("mensajeFinal");
   const canvas = document.getElementById("ahorcado");
   const ctx = canvas.getContext("2d");
   const reiniciarBtn = document.getElementById("reiniciar");
-  const mensajeFinal = document.getElementById("mensajeFinal");
+  const cruzEl = document.getElementById("cruz");
 
   function iniciarJuego() {
     letrasUsadas = [];
@@ -200,15 +198,31 @@
       verificarVictoria();
     } else {
       errores++;
-      mostrarCruz();
+      if (errores < maxErrores) mostrarCruzAnimada();
       dibujarAhorcado();
       if (errores === maxErrores) perder();
     }
   }
 
-  function mostrarCruz() {
+  function mostrarCruzAnimada() {
     cruzEl.style.display = "block";
-    setTimeout(() => cruzEl.style.display = "none", 2000);
+    let size = 10;
+    let growing = true;
+
+    cruzEl.style.width = cruzEl.style.height = size + "px";
+
+    const anim = setInterval(() => {
+      if (growing) size += 2;
+      else size -= 2;
+
+      if (size >= 30) growing = false;
+      if (size <= 10 && !growing) {
+        clearInterval(anim);
+        cruzEl.style.display = "none";
+      }
+
+      cruzEl.style.width = cruzEl.style.height = size + "px";
+    }, 50);
   }
 
   function dibujarAhorcado() {
@@ -242,10 +256,6 @@
     mensajeFinal.classList.add("mensaje-rojo");
     mensajeFinal.style.display = "block";
     reiniciarBtn.style.display = "block";
-  }
-
-  function reiniciarJuego() {
-    iniciarJuego();
   }
 
   iniciarJuego();
