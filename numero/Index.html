@@ -108,12 +108,18 @@
       return;
     }
 
-    if (valor === NUMERO_SECRETO) {
-      mensaje.classList.add('exito');
-      mensaje.textContent = 'Muy bien Jime, encontraste el número que estaba pensando... ahora acercate al Locker del número que adivinaste para conseguir tu pista!! 😁';
-      input.value = '';
-      return;
-    }
+if (valor === NUMERO_SECRETO) {
+  mensaje.classList.add('exito');
+  mensaje.textContent =
+    'Muy bien Jime, encontraste el número que estaba pensando... ahora acercate al Locker del número que adivinaste para conseguir tu pista!! 😁';
+
+  // dejar el número visible y en verde
+  input.style.color = "green";
+  input.style.fontWeight = "bold";
+  input.disabled = true;
+
+  return;
+}
 
     if (valor >= 1 && valor <= 35) mensaje.textContent = 'Mucho más alto';
     else if (valor >= 36 && valor <= 65) mensaje.textContent = 'Más alto';
