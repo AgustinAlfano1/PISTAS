@@ -75,4 +75,152 @@
   }
 
   .cruz::before { transform: rotate(45deg); }
-  .cruz::after { transfo
+  .cruz::after { transform: rotate(-45deg); }
+
+  .reiniciar {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    display: none;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+    .linea {
+      font-size: 26px;
+      letter-spacing: 6px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="palabras">
+  <div class="linea" id="linea1"></div>
+  <div class="linea" id="linea2"></div>
+</div>
+
+<canvas id="ahorcado" width="200" height="250"></canvas>
+
+<div class="teclado" id="teclado"></div>
+
+<button class="reiniciar" id="reiniciar" onclick="reiniciarJuego()">Reintentar</button>
+
+<div class="cruz" id="cruz"></div>
+
+<script>
+  const frase1 = "LABURAMOS";
+  const frase2 = "CERQUITA";
+  const maxErrores = 6;
+
+  let letrasUsadas;
+  let errores;
+  let juegoTerminado;
+
+  const linea1El = document.getElementById("linea1");
+  const linea2El = document.getElementById("linea2");
+  const tecladoEl = document.getElementById("teclado");
+  const cruzEl = document.getElementById("cruz");
+  const canvas = document.getElementById("ahorcado");
+  const ctx = canvas.getContext("2d");
+  const reiniciarBtn = document.getElementById("reiniciar");
+
+  function iniciarJuego() {
+    letrasUsadas = [];
+    errores = 0;
+    juegoTerminado = false;
+    reiniciarBtn.style.display = "none";
+    tecladoEl.innerHTML = "";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    dibujarBase();
+    dibujarLineas();
+    crearTeclado();
+  }
+
+  function dibujarBase() {
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(10,240); ctx.lineTo(190,240); // base
+    ctx.moveTo(50,240); ctx.lineTo(50,20);   // palo
+    ctx.moveTo(50,20); ctx.lineTo(140,20);   // techo
+    ctx.lineTo(140,40);                      // soga
+    ctx.stroke();
+  }
+
+  function dibujarLineas() {
+    linea1El.textContent = frase1.split("").map(l =>
+      letrasUsadas.includes(l) ? l : "_"
+    ).join(" ");
+
+    linea2El.textContent = frase2.split("").map(l =>
+      letrasUsadas.includes(l) ? l : "_"
+    ).join(" ");
+  }
+
+  function crearTeclado() {
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letra => {
+      const btn = document.createElement("button");
+      btn.textContent = letra;
+      btn.onclick = () => jugar(letra, btn);
+      tecladoEl.appendChild(btn);
+    });
+  }
+
+  function jugar(letra, boton) {
+    if (juegoTerminado) return;
+    boton.disabled = true;
+
+    if (frase1.includes(letra) || frase2.includes(letra)) {
+      letrasUsadas.push(letra);
+      dibujarLineas();
+      verificarVictoria();
+    } else {
+      errores++;
+      mostrarCruz();
+      dibujarAhorcado();
+      if (errores === maxErrores) perder();
+    }
+  }
+
+  function mostrarCruz() {
+    cruzEl.style.display = "block";
+    setTimeout(() => cruzEl.style.display = "none", 2000);
+  }
+
+  function dibujarAhorcado() {
+    ctx.beginPath();
+    if (errores === 1) ctx.arc(140,60,20,0,Math.PI*2); // cabeza
+    if (errores === 2) ctx.moveTo(140,80), ctx.lineTo(140,140); // cuerpo
+    if (errores === 3) ctx.moveTo(140,100), ctx.lineTo(110,130); // brazo izq
+    if (errores === 4) ctx.moveTo(140,100), ctx.lineTo(170,130); // brazo der
+    if (errores === 5) ctx.moveTo(140,140), ctx.lineTo(110,180); // pierna izq
+    if (errores === 6) ctx.moveTo(140,140), ctx.lineTo(170,180); // pierna der
+    ctx.stroke();
+  }
+
+  function verificarVictoria() {
+    const completo =
+      frase1.split("").every(l => letrasUsadas.includes(l)) &&
+      frase2.split("").every(l => letrasUsadas.includes(l));
+
+    if (completo) {
+      juegoTerminado = true;
+      alert("🎉 ¡Ganaste!");
+    }
+  }
+
+  function perder() {
+    juegoTerminado = true;
+    reiniciarBtn.style.display = "block";
+  }
+
+  function reiniciarJuego() {
+    iniciarJuego();
+  }
+
+  iniciarJuego();
+</script>
+
+</body>
+</html>
