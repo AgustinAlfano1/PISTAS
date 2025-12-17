@@ -27,24 +27,24 @@
     margin: 10px 0;
   }
 
-  .zona-ahorcado {
-    position: relative;
-    margin-top: 10px;
-  }
-
   canvas {
     display: block;
     margin: auto;
   }
 
   .mensaje-final {
-    position: absolute;
-    top: -60px;
-    width: 100%;
-    text-align: center;
-    font-size: 28px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
     font-weight: bold;
     display: none;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 4000;
   }
 
   .mensaje-rojo { color: red; }
@@ -83,9 +83,9 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    background: transparent;
+    transform: translate(-50%, -50%);
     display: none;
-    z-index: 2000;
+    z-index: 3000;
   }
 
   .cruz::before,
@@ -115,16 +115,14 @@
   <div class="linea" id="linea2"></div>
 </div>
 
-<div class="zona-ahorcado">
-  <div class="mensaje-final" id="mensajeFinal"></div>
-  <canvas id="ahorcado" width="200" height="250"></canvas>
-</div>
+<canvas id="ahorcado" width="200" height="250"></canvas>
 
 <div class="teclado" id="teclado"></div>
 
 <button class="reiniciar" id="reiniciar" onclick="iniciarJuego()">Reintentar</button>
 
 <div class="cruz" id="cruz"></div>
+<div class="mensaje-final" id="mensajeFinal"></div>
 
 <script>
   const frase1 = "LABURAMOS";
@@ -206,23 +204,20 @@
 
   function mostrarCruzAnimada() {
     cruzEl.style.display = "block";
-    let size = 10;
+    let size = 50;
     let growing = true;
 
     cruzEl.style.width = cruzEl.style.height = size + "px";
 
     const anim = setInterval(() => {
-      if (growing) size += 2;
-      else size -= 2;
-
-      if (size >= 30) growing = false;
-      if (size <= 10 && !growing) {
+      size += growing ? 3 : -3;
+      if (size >= 80) growing = false;
+      if (size <= 50 && !growing) {
         clearInterval(anim);
         cruzEl.style.display = "none";
       }
-
       cruzEl.style.width = cruzEl.style.height = size + "px";
-    }, 50);
+    }, 40);
   }
 
   function dibujarAhorcado() {
