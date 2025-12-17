@@ -77,6 +77,22 @@
   .cruz::before { transform: rotate(45deg); }
   .cruz::after { transform: rotate(-45deg); }
 
+  .mensaje-final {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    display: none;
+    z-index: 2000;
+    padding: 20px;
+  }
+
+  .mensaje-rojo { color: red; }
+  .mensaje-verde { color: green; }
+
   .reiniciar {
     margin-top: 20px;
     padding: 10px 20px;
@@ -89,6 +105,9 @@
     .linea {
       font-size: 26px;
       letter-spacing: 6px;
+    }
+    .mensaje-final {
+      font-size: 24px;
     }
   }
 </style>
@@ -107,6 +126,7 @@
 <button class="reiniciar" id="reiniciar" onclick="reiniciarJuego()">Reintentar</button>
 
 <div class="cruz" id="cruz"></div>
+<div class="mensaje-final" id="mensajeFinal"></div>
 
 <script>
   const frase1 = "LABURAMOS";
@@ -124,13 +144,16 @@
   const canvas = document.getElementById("ahorcado");
   const ctx = canvas.getContext("2d");
   const reiniciarBtn = document.getElementById("reiniciar");
+  const mensajeFinal = document.getElementById("mensajeFinal");
 
   function iniciarJuego() {
     letrasUsadas = [];
     errores = 0;
     juegoTerminado = false;
-    reiniciarBtn.style.display = "none";
     tecladoEl.innerHTML = "";
+    mensajeFinal.style.display = "none";
+    mensajeFinal.className = "mensaje-final";
+    reiniciarBtn.style.display = "none";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     dibujarBase();
@@ -141,10 +164,10 @@
   function dibujarBase() {
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(10,240); ctx.lineTo(190,240); // base
-    ctx.moveTo(50,240); ctx.lineTo(50,20);   // palo
-    ctx.moveTo(50,20); ctx.lineTo(140,20);   // techo
-    ctx.lineTo(140,40);                      // soga
+    ctx.moveTo(10,240); ctx.lineTo(190,240);
+    ctx.moveTo(50,240); ctx.lineTo(50,20);
+    ctx.moveTo(50,20); ctx.lineTo(140,20);
+    ctx.lineTo(140,40);
     ctx.stroke();
   }
 
@@ -190,12 +213,12 @@
 
   function dibujarAhorcado() {
     ctx.beginPath();
-    if (errores === 1) ctx.arc(140,60,20,0,Math.PI*2); // cabeza
-    if (errores === 2) ctx.moveTo(140,80), ctx.lineTo(140,140); // cuerpo
-    if (errores === 3) ctx.moveTo(140,100), ctx.lineTo(110,130); // brazo izq
-    if (errores === 4) ctx.moveTo(140,100), ctx.lineTo(170,130); // brazo der
-    if (errores === 5) ctx.moveTo(140,140), ctx.lineTo(110,180); // pierna izq
-    if (errores === 6) ctx.moveTo(140,140), ctx.lineTo(170,180); // pierna der
+    if (errores === 1) ctx.arc(140,60,20,0,Math.PI*2);
+    if (errores === 2) ctx.moveTo(140,80), ctx.lineTo(140,140);
+    if (errores === 3) ctx.moveTo(140,100), ctx.lineTo(110,130);
+    if (errores === 4) ctx.moveTo(140,100), ctx.lineTo(170,130);
+    if (errores === 5) ctx.moveTo(140,140), ctx.lineTo(110,180);
+    if (errores === 6) ctx.moveTo(140,140), ctx.lineTo(170,180);
     ctx.stroke();
   }
 
@@ -206,12 +229,18 @@
 
     if (completo) {
       juegoTerminado = true;
-      alert("🎉 ¡Ganaste!");
+      mensajeFinal.textContent = "Grandee Jimee!!";
+      mensajeFinal.classList.add("mensaje-verde");
+      mensajeFinal.style.display = "block";
     }
   }
 
   function perder() {
     juegoTerminado = true;
+    mensajeFinal.textContent =
+      "Perdisteee, Perdisteee, no hay nadie peor que vos 🎶";
+    mensajeFinal.classList.add("mensaje-rojo");
+    mensajeFinal.style.display = "block";
     reiniciarBtn.style.display = "block";
   }
 
