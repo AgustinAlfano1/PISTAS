@@ -3,42 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El Ahorcado</title>
+<title>Ahorcado</title>
 
 <style>
   body {
     margin: 0;
-    padding: 30px 0;
-    background: white;
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     min-height: 100vh;
-    box-sizing: border-box;
-  }
-
-  /* HEADER */
-  .header {
+    font-family: Arial, Helvetica, sans-serif;
+    background-image: url("fondo-navidad.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 10px;
   }
 
-  .header span {
-    font-size: 36px;
+  .contenedor-juego {
+    background: white;
+    padding: 25px 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    max-width: 480px;
+    width: 92%;
+    text-align: center;
   }
 
   .palabras {
     margin-top: 10px;
-    text-align: center;
   }
 
   .linea {
-    font-size: 32px;
+    font-size: 30px;
     letter-spacing: 8px;
     margin: 6px 0;
   }
@@ -47,24 +43,6 @@
     display: block;
     margin: 10px auto 0 auto;
   }
-
-  .mensaje-final {
-    position: fixed;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 30px;
-    font-weight: bold;
-    display: none;
-    padding: 16px 24px;
-    background: white;
-    border-radius: 10px;
-    text-align: center;
-    z-index: 4000;
-  }
-
-  .mensaje-rojo { color: red; }
-  .mensaje-verde { color: green; }
 
   .teclado {
     margin-top: 15px;
@@ -95,9 +73,27 @@
     cursor: pointer;
   }
 
+  .mensaje-final {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: bold;
+    display: none;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 4000;
+  }
+
+  .mensaje-rojo { color: red; }
+  .mensaje-verde { color: green; }
+
   .cruz {
     position: fixed;
-    top: 45%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
@@ -119,31 +115,29 @@
   .cruz::after { transform: rotate(-45deg); }
 
   @media (max-width: 600px) {
-    .linea { font-size: 26px; }
+    .linea { font-size: 24px; }
     .mensaje-final { font-size: 22px; }
-    .header { font-size: 26px; }
-    .header span { font-size: 30px; }
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <span>🎅</span>
-  <div>Ahorcado</div>
+<div class="contenedor-juego">
+
+  <div class="palabras">
+    <div class="linea" id="linea1"></div>
+    <div class="linea" id="linea2"></div>
+  </div>
+
+  <canvas id="ahorcado" width="200" height="250"></canvas>
+
+  <div class="teclado" id="teclado"></div>
+
+  <button class="reiniciar" id="reiniciar" onclick="iniciarJuego()">
+    Reintentar
+  </button>
+
 </div>
-
-<div class="palabras">
-  <div class="linea" id="linea1"></div>
-  <div class="linea" id="linea2"></div>
-</div>
-
-<canvas id="ahorcado" width="200" height="250"></canvas>
-
-<div class="teclado" id="teclado"></div>
-
-<button class="reiniciar" id="reiniciar" onclick="iniciarJuego()">Reintentar</button>
 
 <div class="cruz" id="cruz"></div>
 <div class="mensaje-final" id="mensajeFinal"></div>
