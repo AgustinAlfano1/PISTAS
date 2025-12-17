@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ahorcado</title>
+<title>Pista Jime</title>
 
 <style>
   body {
@@ -16,6 +16,20 @@
     align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .header span {
+    font-size: 36px;
   }
 
   .palabras {
@@ -107,10 +121,18 @@
   @media (max-width: 600px) {
     .linea { font-size: 26px; }
     .mensaje-final { font-size: 22px; }
+    .header { font-size: 26px; }
+    .header span { font-size: 30px; }
   }
 </style>
 </head>
 <body>
+
+<!-- HEADER -->
+<div class="header">
+  <span>🎅</span>
+  <div>Pista Jime</div>
+</div>
 
 <div class="palabras">
   <div class="linea" id="linea1"></div>
