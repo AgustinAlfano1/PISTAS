@@ -1,122 +1,125 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pistas</title>
 
 <style>
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:Arial, Helvetica, sans-serif;
-  background-image:url("fondo-adivinanzas.jpg"); /* imagen tomada de Google */
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background-image: url("fondo-adivinanzas.jpg");
+    background-size: cover;
+    background-position: center;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+  }
 
-.contenedor{
-  background:white;
-  padding:25px;
-  border-radius:16px;
-  max-width:600px;
-  width:95%;
-  box-shadow:0 12px 30px rgba(0,0,0,0.35);
-}
+  .contenedor{
+    background:white;
+    padding:25px;
+    max-width:500px;
+    width:90%;
+    border-radius:12px;
+    text-align:center;
+  }
 
-.seccion{ display:none; text-align:center; }
-.seccion.activa{ display:block; }
+  .seccion{
+    display:none;
+  }
 
-button{
-  margin-top:15px;
-  padding:10px 20px;
-  font-size:16px;
-  cursor:pointer;
-}
+  #sec1{
+    display:block;
+  }
 
-input{
-  width:90%;
-  padding:10px;
-  font-size:16px;
-  margin-top:15px;
-}
+  button{
+    padding:10px 18px;
+    margin-top:15px;
+    border:none;
+    border-radius:6px;
+    background:#007bff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+  }
 
-.pista{
-  margin-top:10px;
-  font-weight:bold;
-}
+  button:disabled{
+    background:#aaa;
+    cursor:not-allowed;
+  }
 
-.exito{
-  color:green;
-  font-weight:bold;
-  margin-top:15px;
-}
+  input{
+    padding:10px;
+    width:90%;
+    margin-top:10px;
+    font-size:16px;
+  }
+
+  .pista{
+    margin-top:10px;
+    font-weight:bold;
+  }
+
+  .exito{
+    color:green;
+    font-weight:bold;
+    margin-top:15px;
+  }
 </style>
-
 </head>
+
 <body>
 
 <div class="contenedor">
 
   <!-- SECCION 1 -->
-
-  <div class="seccion activa" id="sec1">
+  <div class="seccion" id="sec1">
     <p>
       ¡Jime Jime Jime, acá vamos con la segunda pista! Espero que hayas disfrutado el paseo por la ofi 🤣<br><br>
       Esta vez la pista no va a ser tan entretenida, perdón por eso 😢, pero espero que te haga pensar un poco!!<br><br>
-      Para podes descubrir quien soy te voy a dejar en esta ocasión 2 pistas que quizá te ayuden (me levante generosa/o), pero para obtenerla vas a tener que resolver los siguientes puzles...
+      Para podes descubrir quien soy te voy a dejar en esta ocasión 2 pistas que quizá te ayuden (me levante generosa/o),
+      pero para obtenerla vas a tener que resolver los siguientes puzles...
     </p>
     <button onclick="irSeccion(2)">Aceptar</button>
   </div>
 
   <!-- SECCION 2 -->
-
   <div class="seccion" id="sec2">
-    <h3>Aca esta la siguiente pista, a pensar!!</h3>
+    <p><b>Aca esta la siguiente pista, a pensar!!</b></p>
 
-```
-<p>
-  1 – 22 – 5 – 3 – 5 – 19<br>
-  3 – 15 – 13 – 16 – 1 – 18 – 20 – 9 – 13 – 15 – 19<br>
-  13 – 1 – 20 – 5 – 19
-</p>
+    <p>
+      1 – 22 – 5 – 3 – 5 – 19<br>
+      3 – 15 – 13 – 16 – 1 – 18 – 20 – 9 – 13 – 15 – 19<br>
+      13 – 1 – 20 – 5 – 19
+    </p>
 
-<input type="text" id="respuesta" placeholder="Escribí la frase aquí" />
-<br>
-<button onclick="verificar()">Enviar</button>
+    <input type="text" id="respuesta1" placeholder="Escribí la frase acá">
+    <br>
+    <button onclick="verificarFrase()">Enviar</button>
 
-<div>
-  <button id="btnTimer" disabled>05:00</button>
-  <div class="pista" id="textoPista"></div>
-</div>
-```
-
+    <div>
+      <button id="btnTimer1" disabled>05:00</button>
+      <div class="pista" id="pista1"></div>
+    </div>
   </div>
 
   <!-- SECCION 3 -->
-
-  <!-- SECCION 3 -->
-
   <div class="seccion" id="sec3">
-    <h2 class="exito">🎉 Muy bien Jime!! 🎉</h2>
-    <p>Descubriste la pista correctamente. Seguimos con la siguiente aventura 😁</p>
+    <p class="exito">
+      ¡Muy bien Jime! A veces compartimos mates ☕<br><br>
+      Seguimos con la siguiente aventura 😁
+    </p>
     <button onclick="irSeccion(4)">Avanzar</button>
   </div>
 
   <!-- SECCION 4 -->
-
   <div class="seccion" id="sec4">
     <p><b>Para la segunda pista deberas descubrir la palabra... aca te dejo una pequeña adivinanza!!</b></p>
 
-```
-<p style="white-space:pre-line">
-```
-
+    <p style="white-space:pre-line">
 No pasa en reuniones
 ni aparece en el mail.
 
@@ -126,98 +129,100 @@ pero sigue sin reloj.
 Hay charlas, bebidas
 y risas que no son laborales.
 
-¿Qué es? </p>
+¿Qué es?
+    </p>
 
-```
-<input type="text" id="respuesta2" placeholder="Escribí la palabra aquí" />
-<button onclick="verificarAfter()">Enviar</button>
+    <input type="text" id="respuesta2" placeholder="Escribí la palabra">
+    <br>
+    <button onclick="verificarAfter()">Enviar</button>
 
-<div>
-  <button id="btnTimer2" disabled>02:30</button>
-  <div class="pista" id="textoPista2"></div>
-</div>
-```
-
+    <div>
+      <button id="btnTimer2" disabled>02:30</button>
+      <div class="pista" id="pista2"></div>
+    </div>
   </div>
 
 </div>
 
 <script>
-let tiempo = 300;
-let tiempo2 = 150;
-let intervalo = null;
+  function irSeccion(num){
+    document.querySelectorAll(".seccion").forEach(sec => {
+      sec.style.display = "none";
+    });
+    document.getElementById("sec"+num).style.display = "block";
+  }
 
-function irSeccion(num){
-  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
-  document.getElementById('sec'+num).classList.add('activa');
-  if(num === 2) iniciarTimer();
-}
-
-function iniciarTimer(){
-  tiempo = 300;
-  const btn = document.getElementById("btnTimer");
-  btn.disabled = true;
-  intervalo = setInterval(() => {(){
-  const btn = document.getElementById('btnTimer');
-  intervalo = setInterval(() => {
-    tiempo--;
-    const min = String(Math.floor(tiempo/60)).padStart(2,'0');
-    const seg = String(tiempo%60).padStart(2,'0');
-    btn.textContent = `${min}:${seg}`;
-
-    if(tiempo <= 0){
-      clearInterval(intervalo);
-      btn.textContent = 'Pista';
-      btn.disabled = false;
-      btn.onclick = () => {
-        document.getElementById('textoPista').textContent = 'El abecedario tambien se puede contar!!';
-      };
+  /* TIMER 1 */
+  let t1 = 300;
+  const timer1 = setInterval(()=>{
+    if(document.getElementById("sec2").style.display === "block"){
+      t1--;
+      actualizarTimer("btnTimer1", t1);
+      if(t1 <= 0){
+        clearInterval(timer1);
+        activarPista1();
+      }
     }
   },1000);
-}
 
-function verificar(){
-  const valor = document.getElementById('respuesta').value.trim().toLowerCase();
-  if(valor === 'a veces compartimos mates'){
-    clearInterval(intervalo);
-    irSeccion(3);
+  function activarPista1(){
+    const btn = document.getElementById("btnTimer1");
+    btn.textContent = "Pista";
+    btn.disabled = false;
+    btn.onclick = ()=> {
+      document.getElementById("pista1").textContent =
+        "El abecedario tambien se puede contar!!";
+    };
   }
-}
 
-function iniciarTimer2(){
-  tiempo2 = 150;
-  const btn = document.getElementById("btnTimer2");
-  btn.disabled = true;
-  const intervalo2 = setInterval(() => {
-    tiempo2--;
-    const min = String(Math.floor(tiempo2/60)).padStart(2,'0');
-    const seg = String(tiempo2%60).padStart(2,'0');
-    btn.textContent = `${min}:${seg}`;
+  function verificarFrase(){
+    const v = document.getElementById("respuesta1").value
+      .trim().toLowerCase();
+    if(v === "a veces compartimos mates"){
+      irSeccion(3);
+    }
+  }
 
-    if(tiempo2 <= 0){
-      clearInterval(intervalo2);
-      btn.textContent = 'Pista';
-      btn.disabled = false;
-      btn.onclick = () => {
-        document.getElementById('textoPista2').textContent = 'En Italiano: Dopo';
-      };
+  /* TIMER 2 */
+  let t2 = 150;
+  const timer2 = setInterval(()=>{
+    if(document.getElementById("sec4").style.display === "block"){
+      t2--;
+      actualizarTimer("btnTimer2", t2);
+      if(t2 <= 0){
+        clearInterval(timer2);
+        activarPista2();
+      }
     }
   },1000);
-}
 
-function verificarAfter(){
-  const valor = document.getElementById('respuesta2').value.trim().toLowerCase();
-  if(valor === 'after'){
-    document.getElementById('sec4').innerHTML = `<p class="exito">Correcto Jime, la palabra era <b>AFTER</b> porque no siempre todo es trabajo, a veces compartimos momentos fuera del horario laboral 🍻.<br><br>Espero hayas disfrutado tu segunda pista 🥳, buen finde!!</p>`;
+  function activarPista2(){
+    const btn = document.getElementById("btnTimer2");
+    btn.textContent = "Pista";
+    btn.disabled = false;
+    btn.onclick = ()=> {
+      document.getElementById("pista2").textContent = "En Italiano: Dopo";
+    };
   }
-}
-{
-  const valor = document.getElementById('respuesta').value.trim().toLowerCase();
-  if(valor === 'a veces compartimos mates'){
-    clearInterval(intervalo);
-    irSeccion(3);
+
+  function verificarAfter(){
+    const v = document.getElementById("respuesta2").value
+      .trim().toLowerCase();
+    if(v === "after"){
+      document.getElementById("sec4").innerHTML =
+        `<p class="exito">
+        Correcto Jime, la palabra era AFTER porque no siempre todo es trabajo,
+        a veces compartimos momentos fuera del horario laboral 🍻.<br><br>
+        Espero hayas disfrutado tu segunda pista 🥳, buen finde!!
+        </p>`;
+    }
   }
-}
+
+  function actualizarTimer(id, t){
+    const min = String(Math.floor(t/60)).padStart(2,'0');
+    const seg = String(t%60).padStart(2,'0');
+    document.getElementById(id).textContent = `${min}:${seg}`;
+  }
 </script>
 
 </body>
