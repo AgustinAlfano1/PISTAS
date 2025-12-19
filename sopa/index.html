@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sopa de Letras</title>
-<link rel="icon" href="data:image/svg+xml,
+  <link rel="icon" href="data:image/svg+xml,
 <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
 <text y=%22.9em%22 font-size=%2290%22>🎄</text>
 </svg>">
@@ -74,12 +74,45 @@ margin-top:12px;
 padding:10px 20px;
 font-size:16px;
 cursor:pointer;
+}
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+.modal{
+background:white;
+padding:20px;
+border-radius:16px;
+max-width:420px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+.modal button{
+margin-top:15px;
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
 } </style>
 
 </head>
 <body>
-<div class="contenedor">
-  <h2></h2>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <p><strong>Bienvenida a la próxima pista!</strong><br><br>
+    Como podrás ver es una <b>Sopa de Letras</b>!!<br><br>
+    Para poder marcar las palabras encontradas deberás mantener el click y arrastrar sobre las letras que formen tu palabra!<br><br>
+    Suerte!! 😁</p>
+    <button onclick="cerrarAviso()">Aceptar</button>
+  </div>
+</div>
+
+<div class="contenedor" style="display:none" id="juego">
 
   <div class="grilla" id="grilla"></div>
 
@@ -177,6 +210,11 @@ function verificarFin(){
     document.getElementById("mensajeFinal").style.display="block";
     document.getElementById("btnSiguiente").style.display="inline-block";
   }
+}
+
+function cerrarAviso(){
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("juego").style.display="block";
 }
 
 function irSiguiente(){
