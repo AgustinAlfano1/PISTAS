@@ -1,1 +1,191 @@
+<!DOCTYPE html>
 
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sopa de Letras</title>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #e53935;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .contenedor {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    max-width: 520px;
+    width: 95%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+
+  h2 {
+    margin-top: 0;
+  }
+
+  .grilla {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin: 15px auto;
+    user-select: none;
+  }
+
+  .celda {
+    border: 1px solid #ccc;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .celda.seleccionada { background: #bbdefb; }
+  .celda.correcta { background: #81c784; color: white; }
+
+  .pistas {
+    text-align: left;
+    font-size: 14px;
+    margin-top: 15px;
+  }
+
+  .pistas li { margin-bottom: 6px; }
+
+  .mensaje-final {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    color: green;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .siguiente {
+    display: none;
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="contenedor">
+  <h2>Sopa de Letras</h2>
+
+  <div class="grilla" id="grilla"></div>
+
+  <ul class="pistas">
+    <li>Lo hago todos los días, varias veces, sin mí el cuerpo se queja y pierde fuerzas. Empieza cuando tengo hambre y termina cuando el plato queda vacío.</li>
+    <li>Soy lo contrario de mal, cuando todo sale como debe ser. Me usan para decir que algo está correcto y también para sentirse mejor.</li>
+    <li>Vengo antes que el pollito, suelo estar en la sartén o en el nido. Soy blanco por fuera, amarillo por dentro, y en el desayuno soy muy querido.</li>
+    <li>Es un nombre propio, ex presidente de Argentina entre 2003 y 2007.</li>
+    <li>Es un animal pequeño, parecido a un ratón pero más grande, tiene cola larga, y vive en la ciudad.</li>
+    <li>Nací en internet y viajo sin parar, con una imagen y texto te puedo hacer reír o pensar.</li>
+  </ul>
+
+  <div class="mensaje-final" id="mensajeFinal">
+    Muy bien Jime, espero hayas disfrutado el juego! Si ves cada palabra descubierta notaras que te hace recordar a un meme que ambos solemos apreciar!! Buen lunes!! Dale a siguiente para finalizar la pista!
+  </div>
+
+<button class="siguiente" id="btnSiguiente" onclick="irSiguiente()">Siguiente</button>
+
+</div>
+
+<script>
+  const palabras = ["COMER","BIEN","HUEVOS","NESTOR","RATA","MEME"];
+
+  const grillaLetras = [
+    "C O M E R X Q Z A B",
+    "L T R A T A P O U",
+    "B I E N M E M E S",
+    "H U E V O S K L M",
+    "N E S T O R D F G",
+    "Q W E R T Y U I O",
+    "A S D F G H J K L",
+    "Z X C V B N M Q W",
+    "P O I U Y T R E W",
+    "L K J H G F D S A"
+  ].map(r => r.split(" "));
+
+  const grilla = document.getElementById("grilla");
+  let seleccion = [];
+  let encontradas = [];
+  let presionado = false;
+
+  function crearGrilla() {
+    grillaLetras.flat().forEach((letra, i) => {
+      const div = document.createElement("div");
+      div.className = "celda";
+      div.textContent = letra;
+      div.dataset.index = i;
+
+      div.addEventListener("mousedown", () => { presionado = true; seleccionar(div); });
+      div.addEventListener("mouseenter", () => presionado && seleccionar(div));
+      document.addEventListener("mouseup", soltar);
+
+      div.addEventListener("touchstart", e => { e.preventDefault(); presionado = true; seleccionar(div); });
+      div.addEventListener("touchmove", e => {
+        const t = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+        if (t && t.classList.contains("celda")) seleccionar(t);
+      });
+      document.addEventListener("touchend", soltar);
+
+      grilla.appendChild(div);
+    });
+  }
+
+  function seleccionar(celda) {
+    if (!seleccion.includes(celda)) {
+      celda.classList.add("seleccionada");
+      seleccion.push(celda);
+    }
+  }
+
+  function soltar() {
+    if (!presionado) return;
+    presionado = false;
+
+    const palabra = seleccion.map(c => c.textContent).join("");
+    const palabraInvertida = palabra.split("").reverse().join("");
+
+    if (palabras.includes(palabra) || palabras.includes(palabraInvertida)) {
+      seleccion.forEach(c => c.classList.replace("seleccionada","correcta"));
+      encontradas.push(palabra);
+      verificarFin();
+    } else {
+      seleccion.forEach(c => c.classList.remove("seleccionada"));
+    }
+    seleccion = [];
+  }
+
+  function verificarFin() {
+    if (document.querySelectorAll('.celda.correcta').length >= 28) {
+      document.getElementById('mensajeFinal').style.display = 'block';
+      document.getElementById('btnSiguiente').style.display = 'block';
+    }
+  }
+
+  function irSiguiente() {
+    window.location.href = "https://www.youtube.com/watch?v=cGacttSjLZQ";
+  }
+
+  crearGrilla();
+</script>
+
+</body>
+</html>
