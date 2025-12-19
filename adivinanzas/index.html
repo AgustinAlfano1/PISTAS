@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adivinanzas</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, Helvetica, sans-serif;
+  background-image:url("fondo.jpg"); /* imagen tomada de Google */
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.contenedor{
+  background:white;
+  padding:25px;
+  border-radius:16px;
+  max-width:600px;
+  width:95%;
+  box-shadow:0 12px 30px rgba(0,0,0,0.35);
+}
+
+.seccion{ display:none; text-align:center; }
+.seccion.activa{ display:block; }
+
+button{
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+input{
+  width:90%;
+  padding:10px;
+  font-size:16px;
+  margin-top:15px;
+}
+
+.pista{
+  margin-top:10px;
+  font-weight:bold;
+}
+
+.exito{
+  color:green;
+  font-weight:bold;
+  margin-top:15px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="contenedor">
+
+  <!-- SECCION 1 -->
+
+  <div class="seccion activa" id="sec1">
+    <p>
+      ¡Jime Jime Jime, acá vamos con la segunda pista! Espero que hayas disfrutado el paseo por la ofi 🤣<br><br>
+      Esta vez la pista no va a ser tan entretenida, perdón por eso 😢, pero espero que te haga pensar un poco!!<br><br>
+      Para podes descubrir quien soy te voy a dejar en esta ocasión 2 pistas que quizá te ayuden (me levante generosa/o), pero para obtenerla vas a tener que resolver los siguientes puzles...
+    </p>
+    <button onclick="irSeccion(2)">Aceptar</button>
+  </div>
+
+  <!-- SECCION 2 -->
+
+  <div class="seccion" id="sec2">
+    <h3>Aca esta la siguiente pista, a pensar!!</h3>
+
+```
+<p>
+  1 – 22 – 5 – 3 – 5 – 19<br>
+  3 – 15 – 13 – 16 – 1 – 18 – 20 – 9 – 13 – 15 – 19<br>
+  13 – 1 – 20 – 5 – 19
+</p>
+
+<input type="text" id="respuesta" placeholder="Escribí la frase aquí" />
+<br>
+<button onclick="verificar()">Enviar</button>
+
+<div>
+  <button id="btnTimer" disabled>05:00</button>
+  <div class="pista" id="textoPista"></div>
+</div>
+```
+
+  </div>
+
+  <!-- SECCION 3 -->
+
+  <div class="seccion" id="sec3">
+    <h2 class="exito">🎉 Muy bien Jime!! 🎉</h2>
+    <p>Descubriste la pista correctamente. Seguimos con la siguiente aventura 😁</p>
+  </div>
+
+</div>
+
+<script>
+let tiempo = 300;
+let intervalo = null;
+
+function irSeccion(num){
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+  document.getElementById('sec'+num).classList.add('activa');
+  if(num === 2) iniciarTimer();
+}
+
+function iniciarTimer(){
+  const btn = document.getElementById('btnTimer');
+  intervalo = setInterval(() => {
+    tiempo--;
+    const min = String(Math.floor(tiempo/60)).padStart(2,'0');
+    const seg = String(tiempo%60).padStart(2,'0');
+    btn.textContent = `${min}:${seg}`;
+
+    if(tiempo <= 0){
+      clearInterval(intervalo);
+      btn.textContent = 'Pista';
+      btn.disabled = false;
+      btn.onclick = () => {
+        document.getElementById('textoPista').textContent = 'El abecedario tambien se puede contar!!';
+      };
+    }
+  },1000);
+}
+
+function verificar(){
+  const valor = document.getElementById('respuesta').value.trim().toLowerCase();
+  if(valor === 'a veces compartimos mates'){
+    clearInterval(intervalo);
+    irSeccion(3);
+  }
+}
+</script>
+
+</body>
+</html>
