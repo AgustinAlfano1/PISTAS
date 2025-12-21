@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ahorcado</title>
-  
+
 <link rel="icon" href="data:image/svg+xml,
 <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
 <text y=%22.9em%22 font-size=%2290%22>🎄</text>
 </svg>">
-  
+
 <style>
   body {
     margin: 0;
@@ -34,20 +34,10 @@
     text-align: center;
   }
 
-  .palabras {
-    margin-top: 10px;
-  }
+  .palabras { margin-top: 10px; }
+  .linea { font-size: 30px; letter-spacing: 8px; margin: 6px 0; }
 
-  .linea {
-    font-size: 30px;
-    letter-spacing: 8px;
-    margin: 6px 0;
-  }
-
-  canvas {
-    display: block;
-    margin: 10px auto 0 auto;
-  }
+  canvas { display: block; margin: 10px auto 0 auto; }
 
   .teclado {
     margin-top: 15px;
@@ -80,10 +70,10 @@
 
   .mensaje-final {
     position: fixed;
-    top: 40%;
+    top: 35%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: bold;
     display: none;
     padding: 16px 24px;
@@ -91,6 +81,7 @@
     border-radius: 10px;
     text-align: center;
     z-index: 4000;
+    max-width: 90%;
   }
 
   .mensaje-rojo { color: red; }
@@ -119,13 +110,52 @@
   .cruz::before { transform: rotate(45deg); }
   .cruz::after { transform: rotate(-45deg); }
 
+  /* MODAL INICIAL */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+  }
+
+  .modal {
+    background: white;
+    padding: 22px;
+    border-radius: 16px;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .modal button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
   @media (max-width: 600px) {
     .linea { font-size: 24px; }
-    .mensaje-final { font-size: 22px; }
+    .mensaje-final { font-size: 18px; }
   }
 </style>
 </head>
 <body>
+
+<!-- MENSAJE INICIAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <p>
+      Hola Jime, espero hayas descansado el finde!!<br><br>
+      Vamos con la tercera pista, la de hoy va a ser rápida, preparate para jugar al ahorcado.<br><br>
+      No te preocupes, si llegas a perder podes volver a intentarlo!!<br><br>
+      Espero que lo disfrutes!! 😁
+    </p>
+    <button onclick="comenzarJuego()">Aceptar</button>
+  </div>
+</div>
 
 <div class="contenedor-juego">
 
@@ -164,6 +194,11 @@
   const ctx = canvas.getContext("2d");
   const reiniciarBtn = document.getElementById("reiniciar");
   const cruzEl = document.getElementById("cruz");
+
+  function comenzarJuego() {
+    document.getElementById("overlay").style.display = "none";
+    iniciarJuego();
+  }
 
   function iniciarJuego() {
     letrasUsadas = [];
@@ -261,7 +296,8 @@
 
     if (completo) {
       juegoTerminado = true;
-      mensajeFinal.textContent = "Grandee Jimee!!";
+      mensajeFinal.textContent =
+        "კარგად გააკეთე! მინიშნება იპოვე. ეს მხოლოდ დამშვიდობების შეტყობინება იქნება; მინდოდა გეფიქრა, რომ შესაძლოა ეს კიდევ ერთი მინიშნება ყოფილიყო, მაგრამ არა... უბრალოდ ვიტყვი, რომ ჩვენ ძალიან მჭიდროდ ვითანამშრომლეთ...";
       mensajeFinal.classList.add("mensaje-verde");
       mensajeFinal.style.display = "block";
     }
@@ -275,8 +311,6 @@
     mensajeFinal.style.display = "block";
     reiniciarBtn.style.display = "block";
   }
-
-  iniciarJuego();
 </script>
 
 </body>
