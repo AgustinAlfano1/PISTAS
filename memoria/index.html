@@ -10,7 +10,10 @@ body{
   margin:0;
   min-height:100vh;
   font-family:Arial, sans-serif;
-  background:#b71c1c;
+  background-image:url("fondo-memoria.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -25,6 +28,7 @@ body{
   width:95%;
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,.35);
+  z-index:2;
 }
 
 /* TABLERO */
@@ -35,15 +39,14 @@ body{
   margin-top:15px;
 }
 
-/* CARTA */
+/* CARTAS */
 .carta{
   position:relative;
   width:100%;
-  padding-top:140%; /* alargada */
+  padding-top:140%;
   perspective:900px;
 }
 
-/* INTERIOR */
 .inner{
   position:absolute;
   inset:0;
@@ -53,28 +56,23 @@ body{
   box-shadow:0 4px 8px rgba(0,0,0,.25);
 }
 
-/* SOMBRA REALISTA AL GIRAR */
 .carta.volteada .inner{
   transform:rotateY(180deg);
   box-shadow:0 10px 18px rgba(0,0,0,.45);
 }
 
-/* BRILLO HOVER */
 .carta:not(.bloqueada):hover .inner{
   box-shadow:0 0 14px rgba(255,215,0,.8);
 }
 
-/* CARTA SELECCIONADA */
 .carta.seleccionada .frente{
   background:#66bb6a;
 }
 
-/* BLOQUEADA */
 .carta.bloqueada{
   pointer-events:none;
 }
 
-/* CARAS */
 .cara{
   position:absolute;
   inset:0;
@@ -87,25 +85,21 @@ body{
   border:1px solid rgba(0,0,0,.15);
 }
 
-/* DORSO */
 .atras{
   background-image:url("carta.jpg");
   background-size:cover;
   background-position:center;
-  background-repeat:no-repeat;
 }
 
-/* FRENTE */
 .frente{
   background:#fff;
   transform:rotateY(180deg);
-  transition:background .3s;
 }
 
-/* ANIMACION AL ACERTAR */
+/* ANIMACION ACIERTO */
 @keyframes acierto{
   0%{transform:scale(1);}
-  50%{transform:scale(1.08);}
+  50%{transform:scale(1.1);}
   100%{transform:scale(1);}
 }
 
@@ -131,6 +125,14 @@ body{
   border-radius:18px;
   max-width:420px;
   text-align:center;
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 1s ease, transform 1s ease;
+}
+
+.modal.visible{
+  opacity:1;
+  transform:translateY(0);
 }
 
 .modal button{
@@ -139,6 +141,24 @@ body{
   font-size:16px;
   cursor:pointer;
 }
+
+/* CONFETI */
+.confeti{
+  position:fixed;
+  width:8px;
+  height:8px;
+  background:red;
+  top:-10px;
+  animation:caer linear forwards;
+  z-index:3000;
+}
+
+@keyframes caer{
+  to{
+    transform:translateY(110vh) rotate(720deg);
+    opacity:0;
+  }
+}
 </style>
 </head>
 
@@ -146,7 +166,7 @@ body{
 
 <!-- INICIO -->
 <div class="overlay" id="overlayInicio">
-  <div class="modal">
+  <div class="modal visible">
     <p>
       Hola Jime, como estas?<br><br>
       Me contaron que ya tenes tus sospechas de quien sos, y estas bastante errada,
@@ -161,7 +181,7 @@ body{
 
 <!-- FINAL -->
 <div class="overlay" id="overlayFinal" style="display:none;">
-  <div class="modal">
+  <div class="modal" id="modalFinal">
     <p>
       <b>Jimee, muy bien esa memoria!!</b><br><br>
 
@@ -187,15 +207,12 @@ body{
 </div>
 
 <script>
-const emojis = [
+const emojis=[
   "🎄","🎁","🎅","❄️","⛄","🦌","🍷","🍪","🔔","⭐",
   "🎶","🕯️","🥂","🍫","🎉","📦","🧣","🧤","🧦","🌟"
 ];
 
-let cartas=[];
-let seleccionadas=[];
-let bloqueado=true;
-
+let cartas=[], seleccionadas=[], bloqueado=true;
 const tablero=document.getElementById("tablero");
 
 function crearCartas(){
@@ -215,13 +232,11 @@ function render(){
       div.classList.add("volteada","bloqueada","acertada");
     }
     div.dataset.index=i;
-    div.dataset.emoji=c.emoji;
     div.innerHTML=`
       <div class="inner">
         <div class="cara atras"></div>
         <div class="cara frente">${c.emoji}</div>
-      </div>
-    `;
+      </div>`;
     div.onclick=()=>clickCarta(div);
     tablero.appendChild(div);
   });
@@ -241,12 +256,11 @@ function iniciarJuego(){
 }
 
 function preview(){
-  const todas=document.querySelectorAll(".carta");
-  todas.forEach(c=>c.classList.add("volteada"));
+  document.querySelectorAll(".carta").forEach(c=>c.classList.add("volteada"));
   setTimeout(()=>{
-    todas.forEach(c=>c.classList.remove("volteada"));
+    document.querySelectorAll(".carta").forEach(c=>c.classList.remove("volteada"));
     bloqueado=false;
-  },2000);
+  },5000);
 }
 
 function clickCarta(el){
@@ -267,12 +281,11 @@ function verificar(){
   const cb=cartas[b.dataset.index];
 
   if(ca.emoji===cb.emoji){
-    ca.encontrada=true;
-    cb.encontrada=true;
-    a.classList.remove("seleccionada");
-    b.classList.remove("seleccionada");
+    ca.encontrada=cb.encontrada=true;
     a.classList.add("bloqueada","acertada");
     b.classList.add("bloqueada","acertada");
+    a.classList.remove("seleccionada");
+    b.classList.remove("seleccionada");
     seleccionadas=[];
     bloqueado=false;
     verificarVictoria();
@@ -288,9 +301,25 @@ function verificar(){
 
 function verificarVictoria(){
   if(cartas.every(c=>c.encontrada)){
+    lanzarConfeti();
     setTimeout(()=>{
       document.getElementById("overlayFinal").style.display="flex";
-    },600);
+      const modal=document.getElementById("modalFinal");
+      setTimeout(()=>modal.classList.add("visible"),200);
+    },2500);
+  }
+}
+
+/* CONFETI */
+function lanzarConfeti(){
+  for(let i=0;i<120;i++){
+    const c=document.createElement("div");
+    c.className="confeti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=`hsl(${Math.random()*360},80%,60%)`;
+    c.style.animationDuration=2+Math.random()*2+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
   }
 }
 </script>
