@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Memoria</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:#b71c1c;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.contenedor{
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  max-width:520px;
+  width:95%;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+.tablero{
+  display:grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap:8px;
+  margin-top:15px;
+}
+
+.carta{
+  position:relative;
+  width:100%;
+  padding-top:100%;
+  cursor:pointer;
+  perspective:600px;
+}
+
+.inner{
+  position:absolute;
+  inset:0;
+  transition:transform .5s;
+  transform-style:preserve-3d;
+}
+
+.carta.volteada .inner{
+  transform:rotateY(180deg);
+}
+
+.carta.bloqueada{
+  pointer-events:none;
+}
+
+.cara{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  border-radius:10px;
+  backface-visibility:hidden;
+}
+
+.atras{
+  background:#d32f2f;
+  color:white;
+}
+
+.frente{
+  background:#fff;
+  transform:rotateY(180deg);
+  border:2px solid #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+  <h2>🧠 Juego de Memoria</h2>
+  <div class="tablero" id="tablero"></div>
+</div>
+
+<script>
+const emojis = [
+  "🎄","🎁","🎅","❄️","⛄","🦌","🍷","🍪","🔔","⭐",
+  "🎶","🕯️","🥂","🍫","🎉","📦","🧣","🧤","🧦","🌟"
+];
+
+let cartas = [];
+let seleccionadas = [];
+let bloqueado = true;
+
+const tablero = document.getElementById("tablero");
+
+function crearCartas(){
+  cartas = [];
+  emojis.forEach(e => {
+    cartas.push({emoji:e, id:Math.random()});
+    cartas.push({emoji:e, id:Math.random()});
+  });
+}
+
+function render(){
+  tablero.innerHTML = "";
+  cartas.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "carta volteada";
+    div.dataset.emoji = c.emoji;
+
+    div.innerHTML = `
+      <div class="inner">
+        <div class="cara atras">?</div>
+        <div class="cara frente">${c.emoji}</div>
+      </div>
+    `;
+
+    div.onclick = () => clickCarta(div);
+    tablero.appendChild(div);
+  });
+}
+
+function iniciar(){
+  crearCartas();
+  render();
+
+  // mostrar pares ordenados
+  setTimeout(() => {
+    document.querySelectorAll(".carta").forEach(c => c.classList.remove("volteada"));
+    mezclarAnimado();
+  }, 2000);
+}
+
+function mezclarAnimado(){
+  bloqueado = true;
+  setTimeout(() => {
+    cartas.sort(() => Math.random() - 0.5);
+    render();
+    setTimeout(() => {
+      document.querySelectorAll(".carta").forEach(c => c.classList.add("volteada"));
+      bloqueado = false;
+    }, 2000);
+  }, 800);
+}
+
+function clickCarta(carta){
+  if(bloqueado || carta.classList.contains("bloqueada") || seleccionadas.includes(carta)) return;
+
+  carta.classList.add("volteada");
+  seleccionadas.push(carta);
+
+  if(seleccionadas.length === 2){
+    verificar();
+  }
+}
+
+function verificar(){
+  bloqueado = true;
+  const [a,b] = seleccionadas;
+
+  if(a.dataset.emoji === b.dataset.emoji){
+    a.classList.add("bloqueada");
+    b.classList.add("bloqueada");
+    seleccionadas = [];
+    bloqueado = false;
+  } else {
+    setTimeout(() => {
+      a.classList.remove("volteada");
+      b.classList.remove("volteada");
+      seleccionadas = [];
+      mezclarAnimado();
+    }, 800);
+  }
+}
+
+iniciar();
+</script>
+
+</body>
+</html>
