@@ -81,7 +81,7 @@ body{
   border:2px solid #ccc;
 }
 
-/* MODAL */
+/* MODALES */
 .overlay{
   position:fixed;
   inset:0;
@@ -111,7 +111,8 @@ body{
 
 <body>
 
-<div class="overlay" id="overlay">
+<!-- MENSAJE INICIAL -->
+<div class="overlay" id="overlayInicio">
   <div class="modal">
     <p>
       Hola Jime, como estas?<br><br>
@@ -122,6 +123,28 @@ body{
       Buena suerte!!
     </p>
     <button onclick="comenzar()">Comenzar</button>
+  </div>
+</div>
+
+<!-- MENSAJE FINAL -->
+<div class="overlay" id="overlayFinal" style="display:none;">
+  <div class="modal">
+    <p>
+      <b>Jimee, muy bien esa memoria!!</b><br><br>
+
+      Ahora te dejo la ultima pista de esta semana:<br><br>
+
+      No soy quien imaginás.<br>
+      No miro desde lo alto<br>
+      ni llego antes de empezar.<br><br>
+
+      No todo es lo que parece,<br>
+      y ahí empieza la verdad.<br><br>
+
+      Espero que tengas una muy linda <b>Feliz Navidaad!!</b> 🎅🍻<br><br>
+
+      att. <b>G.B</b>
+    </p>
   </div>
 </div>
 
@@ -145,8 +168,8 @@ const tablero = document.getElementById("tablero");
 function crearCartas(){
   cartas = [];
   emojis.forEach(e=>{
-    cartas.push({ emoji:e, encontrada:false });
-    cartas.push({ emoji:e, encontrada:false });
+    cartas.push({emoji:e, encontrada:false});
+    cartas.push({emoji:e, encontrada:false});
   });
 }
 
@@ -158,8 +181,8 @@ function render(){
     if(c.encontrada){
       div.classList.add("volteada","bloqueada");
     }
-    div.dataset.index = idx;
-    div.dataset.emoji = c.emoji;
+    div.dataset.index=idx;
+    div.dataset.emoji=c.emoji;
 
     div.innerHTML=`
       <div class="inner">
@@ -167,30 +190,26 @@ function render(){
         <div class="cara frente">${c.emoji}</div>
       </div>
     `;
-
     div.onclick=()=>clickCarta(div);
     tablero.appendChild(div);
   });
 }
 
 function comenzar(){
-  document.getElementById("overlay").style.display="none";
+  document.getElementById("overlayInicio").style.display="none";
   iniciarJuego();
 }
 
 function iniciarJuego(){
   bloqueado=true;
   crearCartas();
-  mezclarTodas();
+  cartas.sort(()=>Math.random()-0.5);
   render();
   preview();
 }
 
 function preview(){
-  const visibles=[...document.querySelectorAll(".carta")].filter(
-    (c,i)=>!cartas[i].encontrada
-  );
-
+  const visibles=document.querySelectorAll(".carta");
   visibles.forEach(c=>c.classList.add("volteada"));
 
   setTimeout(()=>{
@@ -201,11 +220,8 @@ function preview(){
 
 function clickCarta(cartaEl){
   if(bloqueado) return;
-
-  const idx = cartaEl.dataset.index;
-  const carta = cartas[idx];
-
-  if(carta.encontrada || seleccionadas.includes(cartaEl)) return;
+  const idx=cartaEl.dataset.index;
+  if(cartas[idx].encontrada || seleccionadas.includes(cartaEl)) return;
 
   cartaEl.classList.add("volteada","seleccionada");
   seleccionadas.push(cartaEl);
@@ -216,41 +232,35 @@ function clickCarta(cartaEl){
 function verificar(){
   bloqueado=true;
   const [a,b]=seleccionadas;
-  const ca = cartas[a.dataset.index];
-  const cb = cartas[b.dataset.index];
+  const ca=cartas[a.dataset.index];
+  const cb=cartas[b.dataset.index];
 
-  if(ca.emoji === cb.emoji){
-    ca.encontrada = true;
-    cb.encontrada = true;
+  if(ca.emoji===cb.emoji){
+    ca.encontrada=true;
+    cb.encontrada=true;
     a.classList.remove("seleccionada");
     b.classList.remove("seleccionada");
     a.classList.add("bloqueada");
     b.classList.add("bloqueada");
     seleccionadas=[];
     bloqueado=false;
+    verificarVictoria();
   }else{
     setTimeout(()=>{
       a.classList.remove("volteada","seleccionada");
       b.classList.remove("volteada","seleccionada");
       seleccionadas=[];
-      mezclarRestantes();
+      bloqueado=false;
     },800);
   }
 }
 
-function mezclarTodas(){
-  cartas.sort(()=>Math.random()-0.5);
-}
-
-function mezclarRestantes(){
-  const restantes = cartas.filter(c=>!c.encontrada);
-  const encontradas = cartas.filter(c=>c.encontrada);
-
-  restantes.sort(()=>Math.random()-0.5);
-  cartas = [...encontradas, ...restantes];
-
-  render();
-  preview();
+function verificarVictoria(){
+  if(cartas.every(c=>c.encontrada)){
+    setTimeout(()=>{
+      document.getElementById("overlayFinal").style.display="flex";
+    },600);
+  }
 }
 </script>
 
