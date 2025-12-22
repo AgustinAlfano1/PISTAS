@@ -79,7 +79,6 @@ body{
   background:#fff;
   transform:rotateY(180deg);
   border:2px solid #ccc;
-  transition:background .3s;
 }
 
 /* MODAL */
@@ -146,23 +145,29 @@ const tablero = document.getElementById("tablero");
 function crearCartas(){
   cartas = [];
   emojis.forEach(e=>{
-    cartas.push({emoji:e});
-    cartas.push({emoji:e});
+    cartas.push({ emoji:e, encontrada:false });
+    cartas.push({ emoji:e, encontrada:false });
   });
 }
 
 function render(){
   tablero.innerHTML="";
-  cartas.forEach(c=>{
+  cartas.forEach((c,idx)=>{
     const div=document.createElement("div");
     div.className="carta";
-    div.dataset.emoji=c.emoji;
+    if(c.encontrada){
+      div.classList.add("volteada","bloqueada");
+    }
+    div.dataset.index = idx;
+    div.dataset.emoji = c.emoji;
+
     div.innerHTML=`
       <div class="inner">
         <div class="cara atras">?</div>
         <div class="cara frente">${c.emoji}</div>
       </div>
     `;
+
     div.onclick=()=>clickCarta(div);
     tablero.appendChild(div);
   });
@@ -176,26 +181,34 @@ function comenzar(){
 function iniciarJuego(){
   bloqueado=true;
   crearCartas();
-  cartas.sort(()=>Math.random()-0.5);
+  mezclarTodas();
   render();
   preview();
 }
 
 function preview(){
-  const todas=document.querySelectorAll(".carta");
-  todas.forEach(c=>c.classList.add("volteada"));
+  const visibles=[...document.querySelectorAll(".carta")].filter(
+    (c,i)=>!cartas[i].encontrada
+  );
+
+  visibles.forEach(c=>c.classList.add("volteada"));
 
   setTimeout(()=>{
-    todas.forEach(c=>c.classList.remove("volteada"));
+    visibles.forEach(c=>c.classList.remove("volteada"));
     bloqueado=false;
   },2000);
 }
 
-function clickCarta(carta){
-  if(bloqueado||carta.classList.contains("bloqueada")||seleccionadas.includes(carta)) return;
+function clickCarta(cartaEl){
+  if(bloqueado) return;
 
-  carta.classList.add("volteada","seleccionada");
-  seleccionadas.push(carta);
+  const idx = cartaEl.dataset.index;
+  const carta = cartas[idx];
+
+  if(carta.encontrada || seleccionadas.includes(cartaEl)) return;
+
+  cartaEl.classList.add("volteada","seleccionada");
+  seleccionadas.push(cartaEl);
 
   if(seleccionadas.length===2) verificar();
 }
@@ -203,12 +216,16 @@ function clickCarta(carta){
 function verificar(){
   bloqueado=true;
   const [a,b]=seleccionadas;
+  const ca = cartas[a.dataset.index];
+  const cb = cartas[b.dataset.index];
 
-  if(a.dataset.emoji===b.dataset.emoji){
-    a.classList.add("bloqueada");
-    b.classList.add("bloqueada");
+  if(ca.emoji === cb.emoji){
+    ca.encontrada = true;
+    cb.encontrada = true;
     a.classList.remove("seleccionada");
     b.classList.remove("seleccionada");
+    a.classList.add("bloqueada");
+    b.classList.add("bloqueada");
     seleccionadas=[];
     bloqueado=false;
   }else{
@@ -221,8 +238,17 @@ function verificar(){
   }
 }
 
-function mezclarRestantes(){
+function mezclarTodas(){
   cartas.sort(()=>Math.random()-0.5);
+}
+
+function mezclarRestantes(){
+  const restantes = cartas.filter(c=>!c.encontrada);
+  const encontradas = cartas.filter(c=>c.encontrada);
+
+  restantes.sort(()=>Math.random()-0.5);
+  cartas = [...encontradas, ...restantes];
+
   render();
   preview();
 }
