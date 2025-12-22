@@ -20,7 +20,7 @@ body{
   background:white;
   padding:20px;
   border-radius:16px;
-  max-width:520px;
+  max-width:540px;
   width:95%;
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,.3);
@@ -77,10 +77,51 @@ body{
   transform:rotateY(180deg);
   border:2px solid #ccc;
 }
+
+/* MODAL INICIAL */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:5000;
+}
+
+.modal{
+  background:white;
+  padding:22px;
+  border-radius:16px;
+  max-width:420px;
+  text-align:center;
+}
+
+.modal button{
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:16px;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
+
+<!-- MENSAJE INICIAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <p>
+      Hola Jime, como estas?<br><br>
+      Me contaron que ya tenes tus sospechas de quien sos, y estas bastante errada,
+      por eso y considerando que la semana que viene es la ultima vengo a orientarte
+      un poco mas con esta pista!!<br><br>
+      Pero antes de esto deberas ganar el siguiente juego de memoria!! 🤯<br><br>
+      Buena suerte!!
+    </p>
+    <button onclick="comenzar()">Comenzar</button>
+  </div>
+</div>
 
 <div class="contenedor">
   <h2>🧠 Juego de Memoria</h2>
@@ -111,7 +152,7 @@ function render(){
   tablero.innerHTML = "";
   cartas.forEach(c => {
     const div = document.createElement("div");
-    div.className = "carta volteada";
+    div.className = "carta";
     div.dataset.emoji = c.emoji;
 
     div.innerHTML = `
@@ -126,27 +167,20 @@ function render(){
   });
 }
 
-function iniciar(){
-  crearCartas();
-  render();
-
-  // mostrar pares ordenados
-  setTimeout(() => {
-    document.querySelectorAll(".carta").forEach(c => c.classList.remove("volteada"));
-    mezclarAnimado();
-  }, 2000);
+function comenzar(){
+  document.getElementById("overlay").style.display = "none";
+  iniciarJuego();
 }
 
-function mezclarAnimado(){
+function iniciarJuego(){
   bloqueado = true;
-  setTimeout(() => {
-    cartas.sort(() => Math.random() - 0.5);
-    render();
-    setTimeout(() => {
-      document.querySelectorAll(".carta").forEach(c => c.classList.add("volteada"));
-      bloqueado = false;
-    }, 2000);
-  }, 800);
+  crearCartas();
+  cartas.sort(() => Math.random() - 0.5);
+  render();
+
+  // aseguramos que todas estén boca abajo
+  document.querySelectorAll(".carta").forEach(c => c.classList.remove("volteada"));
+  bloqueado = false;
 }
 
 function clickCarta(carta){
@@ -174,12 +208,21 @@ function verificar(){
       a.classList.remove("volteada");
       b.classList.remove("volteada");
       seleccionadas = [];
-      mezclarAnimado();
+      mezclarRestantes();
     }, 800);
   }
 }
 
-iniciar();
+function mezclarRestantes(){
+  const restantes = cartas.filter((_,i) => {
+    const cartaEl = tablero.children[i];
+    return !cartaEl.classList.contains("bloqueada");
+  });
+
+  cartas.sort(() => Math.random() - 0.5);
+  render();
+  bloqueado = false;
+}
 </script>
 
 </body>
