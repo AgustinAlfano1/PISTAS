@@ -37,19 +37,22 @@ body{
   position:relative;
   width:100%;
   padding-top:100%;
-  cursor:pointer;
-  perspective:600px;
+  perspective:800px;
 }
 
 .inner{
   position:absolute;
   inset:0;
-  transition:transform .5s;
+  transition:transform .6s;
   transform-style:preserve-3d;
 }
 
 .carta.volteada .inner{
   transform:rotateY(180deg);
+}
+
+.carta.seleccionada .frente{
+  background:#66bb6a;
 }
 
 .carta.bloqueada{
@@ -76,9 +79,10 @@ body{
   background:#fff;
   transform:rotateY(180deg);
   border:2px solid #ccc;
+  transition:background .3s;
 }
 
-/* MODAL INICIAL */
+/* MODAL */
 .overlay{
   position:fixed;
   inset:0;
@@ -108,7 +112,6 @@ body{
 
 <body>
 
-<!-- MENSAJE INICIAL -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <p>
@@ -142,86 +145,86 @@ const tablero = document.getElementById("tablero");
 
 function crearCartas(){
   cartas = [];
-  emojis.forEach(e => {
-    cartas.push({emoji:e, id:Math.random()});
-    cartas.push({emoji:e, id:Math.random()});
+  emojis.forEach(e=>{
+    cartas.push({emoji:e});
+    cartas.push({emoji:e});
   });
 }
 
 function render(){
-  tablero.innerHTML = "";
-  cartas.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "carta";
-    div.dataset.emoji = c.emoji;
-
-    div.innerHTML = `
+  tablero.innerHTML="";
+  cartas.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="carta";
+    div.dataset.emoji=c.emoji;
+    div.innerHTML=`
       <div class="inner">
         <div class="cara atras">?</div>
         <div class="cara frente">${c.emoji}</div>
       </div>
     `;
-
-    div.onclick = () => clickCarta(div);
+    div.onclick=()=>clickCarta(div);
     tablero.appendChild(div);
   });
 }
 
 function comenzar(){
-  document.getElementById("overlay").style.display = "none";
+  document.getElementById("overlay").style.display="none";
   iniciarJuego();
 }
 
 function iniciarJuego(){
-  bloqueado = true;
+  bloqueado=true;
   crearCartas();
-  cartas.sort(() => Math.random() - 0.5);
+  cartas.sort(()=>Math.random()-0.5);
   render();
+  preview();
+}
 
-  // aseguramos que todas estén boca abajo
-  document.querySelectorAll(".carta").forEach(c => c.classList.remove("volteada"));
-  bloqueado = false;
+function preview(){
+  const todas=document.querySelectorAll(".carta");
+  todas.forEach(c=>c.classList.add("volteada"));
+
+  setTimeout(()=>{
+    todas.forEach(c=>c.classList.remove("volteada"));
+    bloqueado=false;
+  },2000);
 }
 
 function clickCarta(carta){
-  if(bloqueado || carta.classList.contains("bloqueada") || seleccionadas.includes(carta)) return;
+  if(bloqueado||carta.classList.contains("bloqueada")||seleccionadas.includes(carta)) return;
 
-  carta.classList.add("volteada");
+  carta.classList.add("volteada","seleccionada");
   seleccionadas.push(carta);
 
-  if(seleccionadas.length === 2){
-    verificar();
-  }
+  if(seleccionadas.length===2) verificar();
 }
 
 function verificar(){
-  bloqueado = true;
-  const [a,b] = seleccionadas;
+  bloqueado=true;
+  const [a,b]=seleccionadas;
 
-  if(a.dataset.emoji === b.dataset.emoji){
+  if(a.dataset.emoji===b.dataset.emoji){
     a.classList.add("bloqueada");
     b.classList.add("bloqueada");
-    seleccionadas = [];
-    bloqueado = false;
-  } else {
-    setTimeout(() => {
-      a.classList.remove("volteada");
-      b.classList.remove("volteada");
-      seleccionadas = [];
+    a.classList.remove("seleccionada");
+    b.classList.remove("seleccionada");
+    seleccionadas=[];
+    bloqueado=false;
+  }else{
+    setTimeout(()=>{
+      a.classList.remove("volteada","seleccionada");
+      b.classList.remove("volteada","seleccionada");
+      seleccionadas=[];
       mezclarRestantes();
-    }, 800);
+    },800);
   }
 }
 
 function mezclarRestantes(){
-  const restantes = cartas.filter((_,i) => {
-    const cartaEl = tablero.children[i];
-    return !cartaEl.classList.contains("bloqueada");
-  });
-
-  cartas.sort(() => Math.random() - 0.5);
+  cartas.sort(()=>Math.random()-0.5);
   render();
-  bloqueado = false;
+  preview();
 }
 </script>
 
