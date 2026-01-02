@@ -8,97 +8,70 @@
 <style>
 body{
   margin:0;
-  height:100vh;
+  background:#2e2e2e;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#2b2b2b;
-  font-family: Arial, Helvetica, sans-serif;
+  height:100vh;
+  font-family:Arial, sans-serif;
+  color:white;
 }
 
 .caja{
-  width:300px;
-  height:300px;
-  background:#444;
-  border-radius:16px;
-  box-shadow: inset 0 0 20px #000;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  text-align:center;
+}
+
+.flecha{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.rueda-container{
+  width:320px;
+  height:320px;
   position:relative;
-}
-
-.puerta{
-  width:260px;
-  height:260px;
-  background:#555;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  transition: transform 1.5s ease;
-}
-
-.abierta{
-  transform: rotateY(120deg);
+  margin:auto;
 }
 
 .rueda{
-  width:160px;
-  height:160px;
-  background:radial-gradient(circle,#999,#333);
+  width:100%;
+  height:100%;
   border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  cursor:grab;
-  user-select:none;
+  background:radial-gradient(circle, #e0e0e0 0%, #a9a9a9 60%, #7a7a7a 100%);
+  border:8px solid #444;
+  position:absolute;
+  transform:rotate(0deg);
+  transition:transform 0.2s linear;
 }
 
 .numero{
-  font-size:28px;
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  font-size:14px;
   font-weight:bold;
+  color:#000;
 }
 
-.info{
-  margin-top:15px;
-  color:#fff;
-  font-size:14px;
+.controls{
+  margin-top:20px;
 }
 
-.boton{
-  margin-top:10px;
-  padding:8px 14px;
-  font-size:14px;
+button{
+  padding:10px 16px;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
   cursor:pointer;
 }
 
-.mensaje-final{
-  position:fixed;
-  top:40%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:white;
-  padding:20px 30px;
-  font-size:28px;
-  font-weight:bold;
-  display:none;
-  z-index:5000;
-}
-
-.confeti{
-  position:fixed;
-  top:-10px;
-  width:8px;
-  height:8px;
-  animation: caer 3s linear forwards;
-}
-
-@keyframes caer{
-  to{
-    transform: translateY(110vh) rotate(360deg);
-  }
+.info{
+  margin-top:10px;
 }
 </style>
 </head>
@@ -106,107 +79,62 @@ body{
 <body>
 
 <div class="caja">
-  <div class="puerta" id="puerta">
-    <div class="rueda" id="rueda">
-      <div class="numero" id="numero">0</div>
-    </div>
+  <div class="flecha">▲</div>
+
+  <div class="rueda-container">
+    <div class="rueda" id="rueda"></div>
   </div>
 
-  <div class="info" id="info">
-    Paso 1 de 17
+  <div class="controls">
+    <button onclick="girar(-1)">⟲ Izquierda</button>
+    <button onclick="girar(1)">Derecha ⟳</button>
+    <br><br>
+    <button onclick="confirmar()">Confirmar número</button>
   </div>
 
-  <button class="boton" onclick="confirmar()">Confirmar número</button>
-</div>
-
-<div class="mensaje-final" id="mensajeFinal">
-  SOY DE ZONA OESTE
+  <div class="info" id="info"></div>
 </div>
 
 <script>
-const codigoCorrecto = [
+const rueda = document.getElementById("rueda");
+const info = document.getElementById("info");
+
+const totalNumeros = 103;
+const gradosPorNumero = 360 / totalNumeros;
+
+let rotacion = 0;
+let actual = 0;
+let ingresados = [];
+
+const codigo = [
   47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92
 ];
 
-let codigoIngresado = [];
-let valor = 0;
+// Dibujar números
+for(let i=0;i<totalNumeros;i++){
+  const n = document.createElement("div");
+  n.className = "numero";
+  n.style.transform = `rotate(${i*gradosPorNumero}deg)`;
+  n.innerHTML = `<span style="margin-top:10px;">${i}</span>`;
+  rueda.appendChild(n);
+}
 
-const numeroEl = document.getElementById("numero");
-const infoEl = document.getElementById("info");
-const puerta = document.getElementById("puerta");
-
-let inicioX = null;
-
-const rueda = document.getElementById("rueda");
-
-rueda.addEventListener("touchstart", e=>{
-  inicioX = e.touches[0].clientX;
-});
-rueda.addEventListener("touchmove", e=>{
-  if(inicioX === null) return;
-  const dx = e.touches[0].clientX - inicioX;
-  mover(dx);
-  inicioX = e.touches[0].clientX;
-});
-
-rueda.addEventListener("mousedown", e=>{
-  inicioX = e.clientX;
-  document.onmousemove = ev=>{
-    mover(ev.clientX - inicioX);
-    inicioX = ev.clientX;
-  }
-  document.onmouseup = ()=>{
-    document.onmousemove = null;
-  }
-});
-
-function mover(dx){
-  if(dx > 5) valor++;
-  if(dx < -5) valor--;
-  if(valor < 0) valor = 0;
-  numeroEl.textContent = valor;
+function girar(dir){
+  rotacion += dir * gradosPorNumero;
+  rueda.style.transform = `rotate(${rotacion}deg)`;
+  actual = (actual - dir + totalNumeros) % totalNumeros;
 }
 
 function confirmar(){
-  codigoIngresado.push(valor);
-  valor = 0;
-  numeroEl.textContent = 0;
+  ingresados.push(actual);
+  info.textContent = `Número ingresado: ${actual}`;
 
-  if(codigoIngresado.length === 17){
-    validarCodigo();
-  }else{
-    infoEl.textContent = `Paso ${codigoIngresado.length+1} de 17`;
-  }
-}
-
-function validarCodigo(){
-  const ok = codigoIngresado.every((v,i)=>v===codigoCorrecto[i]);
-  if(ok){
-    abrirCaja();
-  }else{
-    alert("Código incorrecto");
-    codigoIngresado = [];
-    infoEl.textContent = "Paso 1 de 17";
-  }
-}
-
-function abrirCaja(){
-  puerta.classList.add("abierta");
-  lanzarConfeti();
-  setTimeout(()=>{
-    document.getElementById("mensajeFinal").style.display="block";
-  },1500);
-}
-
-function lanzarConfeti(){
-  for(let i=0;i<120;i++){
-    const c = document.createElement("div");
-    c.className = "confeti";
-    c.style.left = Math.random()*100+"vw";
-    c.style.background = `hsl(${Math.random()*360},100%,50%)`;
-    c.style.animationDelay = Math.random()*1+"s";
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),3000);
+  if(ingresados.length === codigo.length){
+    if(JSON.stringify(ingresados) === JSON.stringify(codigo)){
+      info.textContent = "✔ Código correcto";
+    }else{
+      info.textContent = "✖ Código incorrecto";
+    }
   }
 }
 </script>
