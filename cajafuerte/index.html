@@ -148,9 +148,15 @@ button{
   background:black;
   color:#00ff00;
   font-family:monospace;
-  padding:30px;
   display:none;
   z-index:9000;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  letter-spacing:2px;
+  text-align:center;
 }
 </style>
 </head>
@@ -222,7 +228,12 @@ function start(){
 
 function flipCard(){flip.classList.toggle("flipped");}
 function update(){display.textContent=arr.join(" - ")+(cur?((arr.length?" - ":"")+cur):"");}
-function add(n){sndClick.play();cur+=n;update();}
+function add(n){
+  sndClick.currentTime = 0;
+  sndClick.play();
+  cur += n;
+  update();
+}
 function clearCur(){cur="";update();}
 
 function confirmCode(){
