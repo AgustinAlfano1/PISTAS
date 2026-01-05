@@ -148,16 +148,15 @@ button{
   background:black;
   color:#00ff00;
   font-family:monospace;
-  display:none;
   z-index:9000;
 
-  display:flex;
+  display:none;              /* 🔑 CLAVE */
   justify-content:center;
   align-items:center;
   font-size:32px;
   letter-spacing:2px;
   text-align:center;
-} 
+}
 </style>
 </head>
 
@@ -270,7 +269,7 @@ function explode(){
 }
 
 function finale(){
-  terminal.style.display="block";
+  terminal.style.display="flex";
   const text="SOY DE ZONA OESTE";
   let i=0;
   const t=setInterval(()=>{
