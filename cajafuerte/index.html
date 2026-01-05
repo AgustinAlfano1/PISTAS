@@ -49,20 +49,9 @@ button{
   cursor:pointer;
 }
 
-.num{
-  background:#777;
-  color:white;
-}
-
-.action{
-  background:#c0392b;
-  color:white;
-}
-
-.confirm{
-  background:#27ae60;
-  color:white;
-}
+.num{ background:#777; color:white; }
+.action{ background:#c0392b; color:white; }
+.confirm{ background:#27ae60; color:white; }
 
 .message{
   margin-top:15px;
@@ -81,21 +70,21 @@ button{
   <div class="display" id="display"></div>
 
   <div class="keypad">
-    <button class="num" onclick="add('7')">7</button>
-    <button class="num" onclick="add('8')">8</button>
-    <button class="num" onclick="add('9')">9</button>
+    <button class="num" onclick="addDigit(7)">7</button>
+    <button class="num" onclick="addDigit(8)">8</button>
+    <button class="num" onclick="addDigit(9)">9</button>
 
-    <button class="num" onclick="add('4')">4</button>
-    <button class="num" onclick="add('5')">5</button>
-    <button class="num" onclick="add('6')">6</button>
+    <button class="num" onclick="addDigit(4)">4</button>
+    <button class="num" onclick="addDigit(5)">5</button>
+    <button class="num" onclick="addDigit(6)">6</button>
 
-    <button class="num" onclick="add('1')">1</button>
-    <button class="num" onclick="add('2')">2</button>
-    <button class="num" onclick="add('3')">3</button>
+    <button class="num" onclick="addDigit(1)">1</button>
+    <button class="num" onclick="addDigit(2)">2</button>
+    <button class="num" onclick="addDigit(3)">3</button>
 
-    <button class="action" onclick="clearEntry()">⌫</button>
-    <button class="num" onclick="add('0')">0</button>
-    <button class="confirm" onclick="confirm()">✔</button>
+    <button class="action" onclick="clearCurrent()">⌫</button>
+    <button class="num" onclick="addDigit(0)">0</button>
+    <button class="confirm" onclick="confirmNumber()">✔</button>
   </div>
 
   <div class="message" id="message">SOY DE ZONA OESTE</div>
@@ -112,25 +101,25 @@ let entered = [];
 const display = document.getElementById("display");
 const message = document.getElementById("message");
 
-function add(n){
-  current += n;
-  updateDisplay();
-}
-
-function clearEntry(){
-  current = "";
-  updateDisplay();
-}
-
 function updateDisplay(){
   display.textContent = entered.join(" - ") + (current ? (entered.length ? " - " : "") + current : "");
 }
 
-function confirm(){
+function addDigit(d){
+  current += d;
+  updateDisplay();
+}
+
+function clearCurrent(){
+  current = "";
+  updateDisplay();
+}
+
+function confirmNumber(){
   if(current==="") return;
 
   entered.push(Number(current));
-  current = "";
+  current="";
   updateDisplay();
 
   if(entered.length === code.length){
@@ -147,6 +136,19 @@ function confirm(){
 function unlock(){
   message.style.display="block";
 }
+
+/* Teclado físico */
+document.addEventListener("keydown", e=>{
+  if(e.key >= "0" && e.key <= "9"){
+    addDigit(e.key);
+  }
+  if(e.key === "Backspace"){
+    clearCurrent();
+  }
+  if(e.key === "Enter"){
+    confirmNumber();
+  }
+});
 </script>
 
 </body>
