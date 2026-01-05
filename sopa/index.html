@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sopa de Letras</title>
-  <link rel="icon" href="data:image/svg+xml,
+
+<link rel="icon" href="data:image/svg+xml,
 <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
 <text y=%22.9em%22 font-size=%2290%22>🎄</text>
 </svg>">
+
 <style>
 body{
   margin:0;
   min-height:100vh;
   font-family:Arial, Helvetica, sans-serif;
-
-  background-image: url("fondo-sopa.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
+  background-image:url("fondo-sopa.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
   display:flex;
   justify-content:center;
   align-items:center;
 }
+
 .contenedor{
   background:white;
   padding:20px;
@@ -34,80 +34,68 @@ body{
   text-align:center;
 }
 
-h2{margin:0 0 10px 0;}
-
 .grilla{
-display:grid;
-grid-template-columns:repeat(10,1fr);
-gap:4px;
-margin:10px auto;
-user-select:none;
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:4px;
+  margin:10px auto;
+  user-select:none;
 }
+
 .celda{
-border:1px solid #ccc;
-width:32px;
-height:32px;
-display:flex;
-justify-content:center;
-align-items:center;
-font-weight:bold;
-cursor:pointer;
+  border:1px solid #ccc;
+  width:32px;
+  height:32px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  cursor:pointer;
 }
+
 .celda.seleccionada{background:#bbdefb;}
 .celda.correcta{background:#66bb6a;color:white;}
 
 .pistas{
-text-align:left;
-font-size:14px;
-margin-top:15px;
+  text-align:left;
+  font-size:14px;
+  margin-top:15px;
 }
+
 .pistas li{margin-bottom:6px;}
 
-.mensaje-final{
-display:none;
-margin-top:20px;
-padding:15px;
-background:white;
-border-radius:10px;
-color:green;
-font-weight:bold;
-}
-
-.siguiente{
-display:none;
-margin-top:12px;
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
-}
 .overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.6);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:1000;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
 }
-.modal{
-background:white;
-padding:20px;
-border-radius:16px;
-max-width:420px;
-text-align:center;
-box-shadow:0 10px 25px rgba(0,0,0,0.3);
-}
-.modal button{
-margin-top:15px;
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
-} </style>
 
+.modal{
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.modal button{
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-<div class="overlay" id="overlay">
+<!-- AVISO INICIAL -->
+<div class="overlay" id="overlayInicio">
   <div class="modal">
     <p><strong>Ultima pista!</strong><br><br>
     Bueno Jime, bienvenida a la ultima pista, como podrás ver es una <b>Sopa de Letras</b>!!<br><br>
@@ -117,28 +105,32 @@ cursor:pointer;
   </div>
 </div>
 
-<div class="contenedor" style="display:none" id="juego">
-
+<!-- JUEGO -->
+<div class="contenedor" id="juego" style="display:none">
   <div class="grilla" id="grilla"></div>
 
   <ul class="pistas">
     <li>Primer dia de la semana.</li>
-    <li>Lo hago todos los días, varias veces, sin mí el cuerpo se queja y pierde fuerzas. Empieza cuando tengo hambre y termina cuando el plato queda vacío.</li>
-    <li>Soy lo contrario de mal, cuando todo sale como debe ser. Me usan para decir que algo está correcto y también para sentirse mejor.</li>
-    <li>Vengo antes que el pollito, suelo estar en la sartén o en el nido. Soy blanco por fuera, amarillo por dentro, y en el desayuno soy muy querido.</li>
-    <li>Es un nombre propio, ex presidente de Argentina entre 2003 y 2007.</li>
-    <li>Es un animal pequeño, parecido a un ratón pero más grande, tiene cola larga, y vive en la ciudad.</li>
-    <li>Nací en internet y viajo sin parar, con una imagen y texto te puedo hacer reír o pensar. También me definen como una imagen graciosa de internet que hace reír a todos.</li>
+    <li>Lo hago todos los días, varias veces...</li>
+    <li>Soy lo contrario de mal...</li>
+    <li>Vengo antes que el pollito...</li>
+    <li>Ex presidente de Argentina entre 2003 y 2007.</li>
+    <li>Animal pequeño de ciudad.</li>
+    <li>Imagen graciosa de internet.</li>
   </ul>
+</div>
 
-  <div class="mensaje-final" id="mensajeFinal">
-    Muy bien Jime, espero hayas disfrutado este juego y todos los anteriores, me diverti mucho pensando las pistas y ver como ibas haciendo tus especulaciones de quien soy 🤣!<pr></pr> 
-    Si ves cada palabra descubierta notarás que te hace recordar a un meme que ambos solemos apreciar!! Buen lunes, nos vemos mañana en la entrega de regalitoos!!<pr></pr> 
-    Dale a siguiente para finalizar la pista! 🥳
+<!-- MENSAJE FINAL EN CARTEL -->
+<div class="overlay" id="overlayFinal" style="display:none">
+  <div class="modal">
+    <p>
+      Muy bien Jime, espero hayas disfrutado este juego y todos los anteriores,  
+      me divertí mucho pensando las pistas 🤣<br><br>
+      Cada palabra te recuerda a un meme que ambos apreciamos!!  
+      Buen lunes, nos vemos mañana en la entrega de regalitos 🎁🥳
+    </p>
+    <button onclick="irSiguiente()">Siguiente</button>
   </div>
-
-<button class="siguiente" id="btnSiguiente" onclick="irSiguiente()">Siguiente</button>
-
 </div>
 
 <script>
@@ -158,8 +150,7 @@ const grillaLetras = [
 ].map(r=>r.split(" "));
 
 const grilla=document.getElementById("grilla");
-let seleccion=[];
-let presionado=false;
+let seleccion=[], presionado=false;
 let palabrasEncontradas=new Set();
 
 function crearGrilla(){
@@ -214,13 +205,12 @@ function soltar(){
 
 function verificarFin(){
   if(palabrasEncontradas.size===palabras.length){
-    document.getElementById("mensajeFinal").style.display="block";
-    document.getElementById("btnSiguiente").style.display="inline-block";
+    document.getElementById("overlayFinal").style.display="flex";
   }
 }
 
 function cerrarAviso(){
-  document.getElementById("overlay").style.display="none";
+  document.getElementById("overlayInicio").style.display="none";
   document.getElementById("juego").style.display="block";
 }
 
