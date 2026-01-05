@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caja Fuerte</title>
 
-<!-- LOGO -->
 <link rel="icon" href="data:image/svg+xml,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
 <text y='0.9em' font-size='90'>🎄</text>
@@ -20,9 +19,9 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
+  overflow:hidden;
 }
 
-/* INTRO */
 .overlay{
   position:fixed;
   inset:0;
@@ -41,7 +40,6 @@ body{
   text-align:center;
 }
 
-/* CONTENEDOR */
 .wrapper{
   background:white;
   padding:20px;
@@ -51,40 +49,26 @@ body{
   display:none;
 }
 
-/* FLIP */
-.flip-container{
-  perspective:1200px;
-}
-
+.flip-container{perspective:1200px;}
 .flip-inner{
   position:relative;
   width:100%;
   transform-style:preserve-3d;
-  transition:transform 0.9s;
+  transition:transform .9s;
 }
-
-.flip-inner.flipped{
-  transform:rotateY(180deg);
-}
+.flip-inner.flipped{transform:rotateY(180deg);}
 
 .face{
   backface-visibility:hidden;
-  width:100%;
 }
-
-.face img{
-  width:100%;
-  border-radius:12px;
-}
+.face img{width:100%;border-radius:12px;}
 
 .safe{
   position:absolute;
   inset:0;
   transform:rotateY(180deg);
-  backface-visibility:hidden;
 }
 
-/* SAFE */
 .display{
   background:#111;
   color:#0f0;
@@ -119,7 +103,45 @@ button{
   cursor:pointer;
 }
 
-/* TERMINAL FINAL */
+/* EXPLOSION */
+.flash{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  z-index:8000;
+}
+
+.shake{
+  animation:shake .5s;
+}
+
+@keyframes shake{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(-10px,5px)}
+  50%{transform:translate(10px,-5px)}
+  75%{transform:translate(-5px,10px)}
+  100%{transform:translate(0,0)}
+}
+
+.particle{
+  position:fixed;
+  width:8px;
+  height:8px;
+  background:orange;
+  border-radius:50%;
+  animation:boom 1s forwards;
+}
+
+@keyframes boom{
+  to{
+    transform:translate(var(--x),var(--y)) scale(0);
+    opacity:0;
+  }
+}
+
+/* TERMINAL */
 .terminal{
   position:fixed;
   inset:0;
@@ -135,7 +157,6 @@ button{
 
 <body>
 
-<!-- MENSAJE INICIAL -->
 <div class="overlay" id="intro">
   <div class="modal">
     <p>
@@ -152,19 +173,11 @@ Suerte, espero te diviertas!! 😁
 </div>
 
 <div class="wrapper" id="wrapper">
-
   <div class="flip-container">
     <div class="flip-inner" id="flip">
-
-      <!-- PISTA -->
-      <div class="face">
-        <img src="Pista.png">
-      </div>
-
-      <!-- CAJA FUERTE -->
+      <div class="face"><img src="Pista.png"></div>
       <div class="face safe">
         <div class="display" id="display"></div>
-
         <div class="keypad">
           <button class="num" onclick="add(7)">7</button>
           <button class="num" onclick="add(8)">8</button>
@@ -180,23 +193,18 @@ Suerte, espero te diviertas!! 😁
           <button class="confirm" onclick="confirmCode()">✔</button>
         </div>
       </div>
-
     </div>
   </div>
-
-  <!-- BOTÓN FLIP (SIEMPRE PRESENTE) -->
   <div class="rotate-btn" onclick="flipCard()">🔄️</div>
-
 </div>
 
+<div class="flash" id="flash"></div>
 <div class="terminal" id="terminal"></div>
 
-<!-- AUDIOS -->
-<audio id="sndClick" src="click.mp3"></audio>
-<audio id="sndConfirm" src="confirm.mp3"></audio>
-<audio id="sndSuccess" src="success.mp3"></audio>
-<audio id="sndError" src="error.mp3"></audio>
-<audio id="sndExplosion" src="explosion.mp3"></audio>
+<audio id="sndClick" src="beep-401570.mp3"></audio>
+<audio id="sndConfirm" src="correct-156911.mp3"></audio>
+<audio id="sndSuccess" src="correct-156911.mp3"></audio>
+<audio id="sndExplosion" src="explosion-fx-343683.mp3"></audio>
 
 <script>
 const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
@@ -205,52 +213,49 @@ let cur="", arr=[];
 const flip=document.getElementById("flip");
 const display=document.getElementById("display");
 const terminal=document.getElementById("terminal");
+const flash=document.getElementById("flash");
 
 function start(){
   intro.style.display="none";
   wrapper.style.display="block";
 }
 
-function flipCard(){
-  flip.classList.toggle("flipped");
-}
-
-function update(){
-  display.textContent=arr.join(" - ")+(cur?((arr.length?" - ":"")+cur):"");
-}
-
-function add(n){
-  sndClick.currentTime=0; sndClick.play();
-  cur+=n; update();
-}
-
-function clearCur(){
-  cur=""; update();
-}
+function flipCard(){flip.classList.toggle("flipped");}
+function update(){display.textContent=arr.join(" - ")+(cur?((arr.length?" - ":"")+cur):"");}
+function add(n){sndClick.play();cur+=n;update();}
+function clearCur(){cur="";update();}
 
 function confirmCode(){
-  if(cur==="") return;
+  if(!cur) return;
   sndConfirm.play();
   arr.push(Number(cur));
-  cur="";
-  update();
-
+  cur=""; update();
   if(arr.length===code.length){
-    if(arr.every((v,i)=>v===code[i])){
-      sndSuccess.play();
-      finale();
-    }else{
-      explode();
-    }
+    arr.every((v,i)=>v===code[i]) ? finale() : explode();
   }
 }
 
 function explode(){
   sndExplosion.play();
-  alert("💥 Código incorrecto 💥");
-  arr=[];
-  cur="";
-  update();
+  wrapper.classList.add("shake");
+  flash.style.opacity=1;
+  setTimeout(()=>flash.style.opacity=0,100);
+
+  for(let i=0;i<30;i++){
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.left="50%";
+    p.style.top="50%";
+    p.style.setProperty("--x",`${(Math.random()-0.5)*400}px`);
+    p.style.setProperty("--y",`${(Math.random()-0.5)*400}px`);
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1000);
+  }
+
+  setTimeout(()=>{
+    wrapper.classList.remove("shake");
+    arr=[];cur="";update();
+  },600);
 }
 
 function finale(){
@@ -264,7 +269,7 @@ function finale(){
 }
 
 document.addEventListener("keydown",e=>{
-  if(e.key>="0" && e.key<="9") add(e.key);
+  if(e.key>="0"&&e.key<="9") add(e.key);
   if(e.key==="Backspace") clearCur();
   if(e.key==="Enter") confirmCode();
 });
