@@ -14,6 +14,7 @@ body{
   align-items:center;
   background:radial-gradient(circle,#444,#111);
   font-family:Arial, sans-serif;
+  overflow:hidden;
 }
 
 .safe{
@@ -60,25 +61,47 @@ button:active{
   transform:translateY(2px);
 }
 
-.status{
-  margin-top:12px;
-  text-align:center;
-  font-size:14px;
-  color:#eee;
-}
-
-.message{
+.overlay{
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,.85);
-  display:flex;
+  background:rgba(0,0,0,.9);
+  display:none;
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  font-size:22px;
-  color:#0f0;
-  display:none;
   text-align:center;
+  color:white;
+  z-index:10;
+}
+
+.overlay h2{
+  margin-bottom:15px;
+}
+
+.retry{
+  padding:12px 20px;
+  font-size:18px;
+  background:#1e8449;
+  border:none;
+  border-radius:8px;
+  color:white;
+  cursor:pointer;
+}
+
+.explosion{
+  position:fixed;
+  width:12px;
+  height:12px;
+  background:orange;
+  border-radius:50%;
+  animation:explode 1s forwards;
+}
+
+@keyframes explode{
+  to{
+    transform:translate(var(--x),var(--y)) scale(0);
+    opacity:0;
+  }
 }
 
 .confetti{
@@ -121,25 +144,33 @@ button:active{
     <button class="confirm" onclick="confirmNumber()">✔</button>
   </div>
 
-  <div class="status" id="status">Intentos restantes: 3</div>
+  <div class="overlay" id="failScreen">
+    <h2>💥 CÓDIGO INCORRECTO 💥</h2>
+    <button class="retry" onclick="resetGame()">Reintentar</button>
+  </div>
 
-  <div class="message" id="message">
-    <div id="finalText"></div>
+  <div class="overlay" id="successScreen">
+    <h2 id="finalText"></h2>
   </div>
 </div>
 
 <script>
 const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
-let current="",entered=[],tries=3,locked=false;
+let current="",entered=[],locked=false;
 
 const display=document.getElementById("display");
-const status=document.getElementById("status");
-const message=document.getElementById("message");
+const failScreen=document.getElementById("failScreen");
+const successScreen=document.getElementById("successScreen");
 const finalText=document.getElementById("finalText");
 
 const beep=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3");
-const errorSound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3");
+const errorSound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-explosion-impact-1705.mp3");
 const openSound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3");
+
+function playSound(sound){
+  sound.currentTime=0;
+  sound.play().catch(()=>{});
+}
 
 function updateDisplay(){
   display.textContent=entered.join(" - ")+(current?(entered.length?" - ":"")+current:"");
@@ -147,7 +178,7 @@ function updateDisplay(){
 
 function addDigit(d){
   if(locked) return;
-  beep.play();
+  playSound(beep);
   current+=d;
   updateDisplay();
 }
@@ -165,43 +196,48 @@ function confirmNumber(){
   updateDisplay();
 
   if(entered.length===code.length){
-    if(JSON.stringify(entered)===JSON.stringify(code)){
-      unlock();
-    }else{
-      fail();
-    }
+    JSON.stringify(entered)===JSON.stringify(code)
+      ? unlock()
+      : explode();
   }
 }
 
-function fail(){
-  errorSound.play();
-  entered=[];
-  tries--;
-  status.textContent="Intentos restantes: "+tries;
-  updateDisplay();
-
-  if(tries<=0){
-    locked=true;
-    status.textContent="Bloqueado 10 segundos...";
-    setTimeout(()=>{
-      tries=3;
-      locked=false;
-      status.textContent="Intentos restantes: 3";
-    },10000);
+function explode(){
+  locked=true;
+  playSound(errorSound);
+  for(let i=0;i<60;i++){
+    const e=document.createElement("div");
+    e.className="explosion";
+    e.style.left="50vw";
+    e.style.top="50vh";
+    e.style.setProperty("--x",(Math.random()*400-200)+"px");
+    e.style.setProperty("--y",(Math.random()*400-200)+"px");
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),1000);
   }
+  setTimeout(()=>failScreen.style.display="flex",600);
+}
+
+function resetGame(){
+  entered=[];
+  current="";
+  locked=false;
+  updateDisplay();
+  failScreen.style.display="none";
 }
 
 function unlock(){
-  openSound.play();
+  locked=true;
+  playSound(openSound);
   launchConfetti();
-  message.style.display="flex";
+  successScreen.style.display="flex";
   let text="SOY DE ZONA OESTE";
   let i=0;
   const interval=setInterval(()=>{
     finalText.textContent+=text[i];
     i++;
     if(i>=text.length) clearInterval(interval);
-  },80);
+  },90);
 }
 
 function launchConfetti(){
