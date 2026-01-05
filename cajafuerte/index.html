@@ -6,137 +6,144 @@
 <title>Caja Fuerte</title>
 
 <style>
-body{
-  margin:0;
-  background:#2e2e2e;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  font-family:Arial, sans-serif;
-  color:white;
-}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#e0e0e0;
+    font-family: Arial, sans-serif;
+  }
 
-.caja{
-  text-align:center;
-}
+  .safe-container{
+    position: relative;
+    width: 320px;
+    height: 320px;
+  }
 
-.flecha{
-  font-size:32px;
-  margin-bottom:10px;
-}
+  /* Flecha */
+  .indicator{
+    position:absolute;
+    top:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:28px;
+    z-index:5;
+  }
 
-.rueda-container{
-  width:320px;
-  height:320px;
-  position:relative;
-  margin:auto;
-}
+  /* Rueda exterior */
+  .dial-outer{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background: radial-gradient(#f5f5f5, #bdbdbd);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+  }
 
-.rueda{
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  background:radial-gradient(circle, #e0e0e0 0%, #a9a9a9 60%, #7a7a7a 100%);
-  border:8px solid #444;
-  position:absolute;
-  transform:rotate(0deg);
-  transition:transform 0.2s linear;
-}
+  /* Números exteriores */
+  .number{
+    position:absolute;
+    font-size:16px;
+    font-weight:bold;
+    color:#222;
+    transform-origin: 50% 140px;
+  }
 
-.numero{
-  position:absolute;
-  width:100%;
-  height:100%;
-  top:0;
-  left:0;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  font-size:14px;
-  font-weight:bold;
-  color:#000;
-}
+  /* Rueda interior */
+  .dial-inner{
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    background: radial-gradient(#dcdcdc, #9e9e9e);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition: transform 0.4s ease-out;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+  }
 
-.controls{
-  margin-top:20px;
-}
+  .center{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:#888;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.6);
+  }
 
-button{
-  padding:10px 16px;
-  font-size:16px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
+  .controls{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+  }
 
-.info{
-  margin-top:10px;
-}
+  button{
+    padding:10px 18px;
+    font-size:18px;
+    cursor:pointer;
+  }
+
+  .readout{
+    text-align:center;
+    margin-top:15px;
+    font-size:18px;
+    font-weight:bold;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="caja">
-  <div class="flecha">▲</div>
+<div>
+  <div class="safe-container">
+    <div class="indicator">▲</div>
 
-  <div class="rueda-container">
-    <div class="rueda" id="rueda"></div>
+    <div class="dial-outer" id="dialOuter">
+      <div class="dial-inner" id="dialInner">
+        <div class="center"></div>
+      </div>
+    </div>
   </div>
 
   <div class="controls">
-    <button onclick="girar(-1)">⟲ Izquierda</button>
-    <button onclick="girar(1)">Derecha ⟳</button>
-    <br><br>
-    <button onclick="confirmar()">Confirmar número</button>
+    <button onclick="rotateDial(-1)">⬅</button>
+    <button onclick="rotateDial(1)">➡</button>
   </div>
 
-  <div class="info" id="info"></div>
+  <div class="readout">
+    Número seleccionado: <span id="currentNumber">0</span>
+  </div>
 </div>
 
 <script>
-const rueda = document.getElementById("rueda");
-const info = document.getElementById("info");
+  const totalNumbers = 100;
+  const stepDeg = 360 / totalNumbers;
+  let current = 0;
+  let rotation = 0;
 
-const totalNumeros = 103;
-const gradosPorNumero = 360 / totalNumeros;
+  const dialInner = document.getElementById("dialInner");
+  const readout = document.getElementById("currentNumber");
 
-let rotacion = 0;
-let actual = 0;
-let ingresados = [];
-
-const codigo = [
-  47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92
-];
-
-// Dibujar números
-for(let i=0;i<totalNumeros;i++){
-  const n = document.createElement("div");
-  n.className = "numero";
-  n.style.transform = `rotate(${i*gradosPorNumero}deg)`;
-  n.innerHTML = `<span style="margin-top:10px;">${i}</span>`;
-  rueda.appendChild(n);
-}
-
-function girar(dir){
-  rotacion += dir * gradosPorNumero;
-  rueda.style.transform = `rotate(${rotacion}deg)`;
-  actual = (actual - dir + totalNumeros) % totalNumeros;
-}
-
-function confirmar(){
-  ingresados.push(actual);
-  info.textContent = `Número ingresado: ${actual}`;
-
-  if(ingresados.length === codigo.length){
-    if(JSON.stringify(ingresados) === JSON.stringify(codigo)){
-      info.textContent = "✔ Código correcto";
-    }else{
-      info.textContent = "✖ Código incorrecto";
-    }
+  /* Crear números exteriores */
+  const outer = document.getElementById("dialOuter");
+  for(let i=0;i<totalNumbers;i+=5){
+    const n = document.createElement("div");
+    n.className = "number";
+    n.textContent = i;
+    n.style.transform = `rotate(${i*stepDeg}deg) translateY(-140px) rotate(-${i*stepDeg}deg)`;
+    outer.appendChild(n);
   }
-}
+
+  function rotateDial(dir){
+    current = (current + dir + totalNumbers) % totalNumbers;
+    rotation -= dir * stepDeg;
+    dialInner.style.transform = `rotate(${rotation}deg)`;
+    readout.textContent = current;
+  }
 </script>
 
 </body>
