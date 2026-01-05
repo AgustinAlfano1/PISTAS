@@ -3,27 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caja Fuerte Digital</title>
+<title>Caja Fuerte</title>
 
 <style>
 body{
   margin:0;
-  height:100vh;
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:radial-gradient(circle,#444,#111);
+  background-image:url("URL_DE_TU_IMAGEN_DE_FONDO");
+  background-size:cover;
+  background-position:center;
   font-family:Arial, sans-serif;
-  overflow:hidden;
 }
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:5000;
+}
+
+.modal{
+  background:white;
+  padding:25px;
+  border-radius:16px;
+  max-width:520px;
+  width:90%;
+  text-align:center;
+}
+
+.modal button{
+  margin-top:20px;
+  padding:12px 22px;
+  font-size:18px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#1e8449;
+  color:white;
+}
+
+.wrapper{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.5);
+  width:380px;
+  perspective:1200px;
+}
+
+.flip-container{
+  position:relative;
+  width:100%;
+  height:460px;
+  transform-style:preserve-3d;
+  transition:transform 1s;
+}
+
+.flip-container.flipped{
+  transform:rotateY(180deg);
+}
+
+.side{
+  position:absolute;
+  inset:0;
+  backface-visibility:hidden;
+}
+
+.back{
+  transform:rotateY(180deg);
+}
+
+/* Imagen pista */
+.pista-img{
+  width:100%;
+  border-radius:12px;
+}
+
+/* Botón giro */
+.rotate-btn{
+  margin:15px auto 0;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  border:none;
+  font-size:28px;
+  cursor:pointer;
+  background:#eee;
+  box-shadow:0 5px 12px rgba(0,0,0,.4);
+}
+
+/* ===== CAJA FUERTE ===== */
 
 .safe{
   background:#555;
   padding:22px;
   border-radius:14px;
   box-shadow:0 12px 30px rgba(0,0,0,.8);
-  width:340px;
-  position:relative;
 }
 
 .display{
@@ -35,7 +116,6 @@ body{
   min-height:52px;
   margin-bottom:15px;
   box-shadow:inset 0 0 8px #0f0;
-  word-wrap:break-word;
 }
 
 .keypad{
@@ -50,18 +130,13 @@ button{
   border:none;
   border-radius:8px;
   cursor:pointer;
-  box-shadow:inset 0 -3px 0 rgba(0,0,0,.4);
 }
 
 .num{ background:#777; color:white; }
 .action{ background:#b03a2e; color:white; }
 .confirm{ background:#1e8449; color:white; }
 
-button:active{
-  transform:translateY(2px);
-}
-
-.overlay{
+.lock{
   position:absolute;
   inset:0;
   background:rgba(0,0,0,.9);
@@ -69,194 +144,101 @@ button:active{
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  text-align:center;
   color:white;
-  z-index:10;
-}
-
-.overlay h2{
-  margin-bottom:15px;
 }
 
 .retry{
-  padding:12px 20px;
-  font-size:18px;
-  background:#1e8449;
+  margin-top:15px;
+  padding:10px 18px;
   border:none;
   border-radius:8px;
+  background:#1e8449;
   color:white;
   cursor:pointer;
-}
-
-.explosion{
-  position:fixed;
-  width:12px;
-  height:12px;
-  background:orange;
-  border-radius:50%;
-  animation:explode 1s forwards;
-}
-
-@keyframes explode{
-  to{
-    transform:translate(var(--x),var(--y)) scale(0);
-    opacity:0;
-  }
-}
-
-.confetti{
-  position:fixed;
-  width:8px;
-  height:8px;
-  background:red;
-  top:-10px;
-  animation:fall linear infinite;
-}
-
-@keyframes fall{
-  to{
-    transform:translateY(110vh) rotate(360deg);
-  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="safe">
-  <div class="display" id="display"></div>
+<!-- MENSAJE INICIAL -->
+<div class="overlay" id="intro">
+  <div class="modal">
+    <p>
+Hola Jime, como estas? Volvi despues de tanto tiempo, perdon por no enviar nada la semana anterior! Espero hayas tenido un excelente inicio de año, y la hayan pasado bien en la bienvenida de año que armaron, no pude ir 😢!!<br><br>
+Hoy te voy a dejar 2 pistas para que ya descubras quien soy porque andas media perdida jajaja, para la primer pista vas a tener que primero acordarte un poco del colegio y buscar tu tabla periodica! Te dejo una pequeña ayuda, lo que importa son los numeros pero tambien el orden alfabetico...<br><br>
+Tambien te recomiendo anotar todo, vas a necesitar cada dato para obtener la pista que guarde bajo llave!<br><br>
+Suerte, espero te diviertas!! 😁
+    </p>
+    <button onclick="start()">Aceptar</button>
+  </div>
+</div>
 
-  <div class="keypad">
-    <button class="num" onclick="addDigit(7)">7</button>
-    <button class="num" onclick="addDigit(8)">8</button>
-    <button class="num" onclick="addDigit(9)">9</button>
+<!-- JUEGO -->
+<div class="wrapper" style="display:none" id="game">
 
-    <button class="num" onclick="addDigit(4)">4</button>
-    <button class="num" onclick="addDigit(5)">5</button>
-    <button class="num" onclick="addDigit(6)">6</button>
+  <div class="flip-container" id="flip">
 
-    <button class="num" onclick="addDigit(1)">1</button>
-    <button class="num" onclick="addDigit(2)">2</button>
-    <button class="num" onclick="addDigit(3)">3</button>
+    <!-- IMAGEN -->
+    <div class="side front">
+      <img src="imagen-pista.jpg" class="pista-img">
+    </div>
 
-    <button class="action" onclick="clearCurrent()">⌫</button>
-    <button class="num" onclick="addDigit(0)">0</button>
-    <button class="confirm" onclick="confirmNumber()">✔</button>
+    <!-- CAJA FUERTE -->
+    <div class="side back">
+      <div class="safe">
+        <div class="display" id="display"></div>
+        <div class="keypad">
+          <button class="num" onclick="add(7)">7</button>
+          <button class="num" onclick="add(8)">8</button>
+          <button class="num" onclick="add(9)">9</button>
+          <button class="num" onclick="add(4)">4</button>
+          <button class="num" onclick="add(5)">5</button>
+          <button class="num" onclick="add(6)">6</button>
+          <button class="num" onclick="add(1)">1</button>
+          <button class="num" onclick="add(2)">2</button>
+          <button class="num" onclick="add(3)">3</button>
+          <button class="action" onclick="clearCur()">⌫</button>
+          <button class="num" onclick="add(0)">0</button>
+          <button class="confirm" onclick="confirm()">✔</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="overlay" id="failScreen">
-    <h2>💥 CÓDIGO INCORRECTO 💥</h2>
-    <button class="retry" onclick="resetGame()">Reintentar</button>
-  </div>
-
-  <div class="overlay" id="successScreen">
-    <h2 id="finalText"></h2>
-  </div>
+  <button class="rotate-btn" onclick="flip()">🔄️</button>
 </div>
 
 <script>
 const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
-let current="",entered=[],locked=false;
+let cur="",arr=[];
 
 const display=document.getElementById("display");
-const failScreen=document.getElementById("failScreen");
-const successScreen=document.getElementById("successScreen");
-const finalText=document.getElementById("finalText");
+const flipEl=document.getElementById("flip");
 
-const beep=new Audio("beep-401570.mp3");
-const errorSound=new Audio("explosion-fx-343683.mp3");
-const openSound=new Audio("correct-156911.mp3");
-
-function playSound(sound){
-  sound.currentTime=0;
-  sound.play().catch(()=>{});
+function start(){
+  document.getElementById("intro").style.display="none";
+  document.getElementById("game").style.display="block";
 }
 
-function updateDisplay(){
-  display.textContent=entered.join(" - ")+(current?(entered.length?" - ":"")+current:"");
+function flip(){
+  flipEl.classList.toggle("flipped");
 }
 
-function addDigit(d){
-  if(locked) return;
-  playSound(beep);
-  current+=d;
-  updateDisplay();
+function update(){
+  display.textContent=arr.join(" - ")+(cur? (arr.length?" - ":"")+cur:"");
 }
 
-function clearCurrent(){
-  if(locked) return;
-  current="";
-  updateDisplay();
+function add(n){ cur+=n; update(); }
+function clearCur(){ cur=""; update(); }
+
+function confirm(){
+  if(cur==="") return;
+  arr.push(Number(cur));
+  cur="";
+  update();
 }
-
-function confirmNumber(){
-  if(locked||current==="") return;
-  entered.push(Number(current));
-  current="";
-  updateDisplay();
-
-  if(entered.length===code.length){
-    JSON.stringify(entered)===JSON.stringify(code)
-      ? unlock()
-      : explode();
-  }
-}
-
-function explode(){
-  locked=true;
-  playSound(errorSound);
-  for(let i=0;i<60;i++){
-    const e=document.createElement("div");
-    e.className="explosion";
-    e.style.left="50vw";
-    e.style.top="50vh";
-    e.style.setProperty("--x",(Math.random()*400-200)+"px");
-    e.style.setProperty("--y",(Math.random()*400-200)+"px");
-    document.body.appendChild(e);
-    setTimeout(()=>e.remove(),1000);
-  }
-  setTimeout(()=>failScreen.style.display="flex",600);
-}
-
-function resetGame(){
-  entered=[];
-  current="";
-  locked=false;
-  updateDisplay();
-  failScreen.style.display="none";
-}
-
-function unlock(){
-  locked=true;
-  playSound(openSound);
-  launchConfetti();
-  successScreen.style.display="flex";
-  let text="SOY DE ZONA OESTE";
-  let i=0;
-  const interval=setInterval(()=>{
-    finalText.textContent+=text[i];
-    i++;
-    if(i>=text.length) clearInterval(interval);
-  },90);
-}
-
-function launchConfetti(){
-  for(let i=0;i<120;i++){
-    const c=document.createElement("div");
-    c.className="confetti";
-    c.style.left=Math.random()*100+"vw";
-    c.style.background=`hsl(${Math.random()*360},80%,60%)`;
-    c.style.animationDuration=2+Math.random()*3+"s";
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),5000);
-  }
-}
-
-document.addEventListener("keydown",e=>{
-  if(e.key>="0"&&e.key<="9") addDigit(e.key);
-  if(e.key==="Backspace") clearCurrent();
-  if(e.key==="Enter") confirmNumber();
-});
 </script>
 
 </body>
