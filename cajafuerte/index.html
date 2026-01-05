@@ -12,26 +12,28 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#2b2b2b;
+  background:radial-gradient(circle,#444,#111);
   font-family:Arial, sans-serif;
 }
 
 .safe{
-  background:#444;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,.6);
-  width:320px;
+  background:#555;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.8);
+  width:340px;
+  position:relative;
 }
 
 .display{
-  background:#111;
+  background:#050;
   color:#0f0;
   font-size:18px;
-  padding:10px;
+  padding:12px;
   border-radius:6px;
-  min-height:48px;
+  min-height:52px;
   margin-bottom:15px;
+  box-shadow:inset 0 0 8px #0f0;
   word-wrap:break-word;
 }
 
@@ -45,21 +47,53 @@ button{
   font-size:20px;
   padding:14px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.4);
 }
 
 .num{ background:#777; color:white; }
-.action{ background:#c0392b; color:white; }
-.confirm{ background:#27ae60; color:white; }
+.action{ background:#b03a2e; color:white; }
+.confirm{ background:#1e8449; color:white; }
+
+button:active{
+  transform:translateY(2px);
+}
+
+.status{
+  margin-top:12px;
+  text-align:center;
+  font-size:14px;
+  color:#eee;
+}
 
 .message{
-  margin-top:15px;
-  text-align:center;
-  font-size:18px;
-  font-weight:bold;
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  font-size:22px;
   color:#0f0;
   display:none;
+  text-align:center;
+}
+
+.confetti{
+  position:fixed;
+  width:8px;
+  height:8px;
+  background:red;
+  top:-10px;
+  animation:fall linear infinite;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(110vh) rotate(360deg);
+  }
 }
 </style>
 </head>
@@ -87,67 +121,105 @@ button{
     <button class="confirm" onclick="confirmNumber()">✔</button>
   </div>
 
-  <div class="message" id="message">SOY DE ZONA OESTE</div>
+  <div class="status" id="status">Intentos restantes: 3</div>
+
+  <div class="message" id="message">
+    <div id="finalText"></div>
+  </div>
 </div>
 
 <script>
-const code = [
-  47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92
-];
+const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
+let current="",entered=[],tries=3,locked=false;
 
-let current = "";
-let entered = [];
+const display=document.getElementById("display");
+const status=document.getElementById("status");
+const message=document.getElementById("message");
+const finalText=document.getElementById("finalText");
 
-const display = document.getElementById("display");
-const message = document.getElementById("message");
+const beep=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3");
+const errorSound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3");
+const openSound=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3");
 
 function updateDisplay(){
-  display.textContent = entered.join(" - ") + (current ? (entered.length ? " - " : "") + current : "");
+  display.textContent=entered.join(" - ")+(current?(entered.length?" - ":"")+current:"");
 }
 
 function addDigit(d){
-  current += d;
+  if(locked) return;
+  beep.play();
+  current+=d;
   updateDisplay();
 }
 
 function clearCurrent(){
-  current = "";
+  if(locked) return;
+  current="";
   updateDisplay();
 }
 
 function confirmNumber(){
-  if(current==="") return;
-
+  if(locked||current==="") return;
   entered.push(Number(current));
   current="";
   updateDisplay();
 
-  if(entered.length === code.length){
-    if(JSON.stringify(entered) === JSON.stringify(code)){
+  if(entered.length===code.length){
+    if(JSON.stringify(entered)===JSON.stringify(code)){
       unlock();
     }else{
-      entered=[];
-      updateDisplay();
-      alert("Código incorrecto");
+      fail();
     }
   }
 }
 
-function unlock(){
-  message.style.display="block";
+function fail(){
+  errorSound.play();
+  entered=[];
+  tries--;
+  status.textContent="Intentos restantes: "+tries;
+  updateDisplay();
+
+  if(tries<=0){
+    locked=true;
+    status.textContent="Bloqueado 10 segundos...";
+    setTimeout(()=>{
+      tries=3;
+      locked=false;
+      status.textContent="Intentos restantes: 3";
+    },10000);
+  }
 }
 
-/* Teclado físico */
-document.addEventListener("keydown", e=>{
-  if(e.key >= "0" && e.key <= "9"){
-    addDigit(e.key);
+function unlock(){
+  openSound.play();
+  launchConfetti();
+  message.style.display="flex";
+  let text="SOY DE ZONA OESTE";
+  let i=0;
+  const interval=setInterval(()=>{
+    finalText.textContent+=text[i];
+    i++;
+    if(i>=text.length) clearInterval(interval);
+  },80);
+}
+
+function launchConfetti(){
+  for(let i=0;i<120;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=`hsl(${Math.random()*360},80%,60%)`;
+    c.style.animationDuration=2+Math.random()*3+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5000);
   }
-  if(e.key === "Backspace"){
-    clearCurrent();
-  }
-  if(e.key === "Enter"){
-    confirmNumber();
-  }
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key>="0"&&e.key<="9") addDigit(e.key);
+  if(e.key==="Backspace") clearCurrent();
+  if(e.key==="Enter") confirmNumber();
 });
 </script>
 
