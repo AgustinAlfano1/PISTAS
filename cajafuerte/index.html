@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caja Fuerte</title>
 
+<!-- LOGO -->
+<link rel="icon" href="data:image/svg+xml,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+<text y='0.9em' font-size='90'>🎄</text>
+</svg>">
+
 <style>
 body{
   margin:0;
@@ -16,6 +22,7 @@ body{
   align-items:center;
 }
 
+/* INTRO */
 .overlay{
   position:fixed;
   inset:0;
@@ -34,20 +41,23 @@ body{
   text-align:center;
 }
 
+/* CONTENEDOR */
 .wrapper{
   background:white;
   padding:20px;
   border-radius:16px;
-  width:380px;
+  width:420px;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
+  display:none;
 }
 
+/* FLIP */
 .flip-container{
-  perspective:1000px;
-  position:relative;
+  perspective:1200px;
 }
 
 .flip-inner{
+  position:relative;
   width:100%;
   transform-style:preserve-3d;
   transition:transform 0.9s;
@@ -59,7 +69,6 @@ body{
 
 .face{
   backface-visibility:hidden;
-  position:absolute;
   width:100%;
 }
 
@@ -69,10 +78,13 @@ body{
 }
 
 .safe{
+  position:absolute;
+  inset:0;
   transform:rotateY(180deg);
   backface-visibility:hidden;
 }
 
+/* SAFE */
 .display{
   background:#111;
   color:#0f0;
@@ -101,18 +113,13 @@ button{
 .confirm{background:#27ae60;color:white;}
 
 .rotate-btn{
-  margin:12px auto;
-  font-size:32px;
-  cursor:pointer;
-  text-align:center;
-}
-
-.message{
   margin-top:12px;
+  font-size:32px;
   text-align:center;
-  font-weight:bold;
+  cursor:pointer;
 }
 
+/* TERMINAL FINAL */
 .terminal{
   position:fixed;
   inset:0;
@@ -128,7 +135,7 @@ button{
 
 <body>
 
-<!-- INTRO -->
+<!-- MENSAJE INICIAL -->
 <div class="overlay" id="intro">
   <div class="modal">
     <p>
@@ -144,7 +151,7 @@ Suerte, espero te diviertas!! 😁
   </div>
 </div>
 
-<div class="wrapper" id="wrapper" style="display:none">
+<div class="wrapper" id="wrapper">
 
   <div class="flip-container">
     <div class="flip-inner" id="flip">
@@ -170,34 +177,33 @@ Suerte, espero te diviertas!! 😁
           <button class="num" onclick="add(3)">3</button>
           <button class="action" onclick="clearCur()">⌫</button>
           <button class="num" onclick="add(0)">0</button>
-          <button class="confirm" onclick="confirm()">✔</button>
+          <button class="confirm" onclick="confirmCode()">✔</button>
         </div>
-
-        <div class="message" id="msg"></div>
       </div>
 
     </div>
   </div>
 
+  <!-- BOTÓN FLIP (SIEMPRE PRESENTE) -->
   <div class="rotate-btn" onclick="flipCard()">🔄️</div>
+
 </div>
 
 <div class="terminal" id="terminal"></div>
 
 <!-- AUDIOS -->
-<audio id="sndClick" src="beep-401570.mp3"></audio>
-<audio id="sndConfirm" src="correct-156911"></audio>
-<audio id="sndError" src="explosion-fx-343683.mp3"></audio>
-<audio id="sndSuccess" src="correct-156911.mp3"></audio>
-<audio id="sndExplosion" src="explosion-fx-343683.mp3"></audio>
+<audio id="sndClick" src="click.mp3"></audio>
+<audio id="sndConfirm" src="confirm.mp3"></audio>
+<audio id="sndSuccess" src="success.mp3"></audio>
+<audio id="sndError" src="error.mp3"></audio>
+<audio id="sndExplosion" src="explosion.mp3"></audio>
 
 <script>
 const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
-let cur="",arr=[],used=false;
+let cur="", arr=[];
 
 const flip=document.getElementById("flip");
 const display=document.getElementById("display");
-const msg=document.getElementById("msg");
 const terminal=document.getElementById("terminal");
 
 function start(){
@@ -218,12 +224,16 @@ function add(n){
   cur+=n; update();
 }
 
-function clearCur(){cur=""; update();}
+function clearCur(){
+  cur=""; update();
+}
 
-function confirm(){
-  if(cur==="")return;
+function confirmCode(){
+  if(cur==="") return;
   sndConfirm.play();
-  arr.push(Number(cur)); cur=""; update();
+  arr.push(Number(cur));
+  cur="";
+  update();
 
   if(arr.length===code.length){
     if(arr.every((v,i)=>v===code[i])){
@@ -237,14 +247,15 @@ function confirm(){
 
 function explode(){
   sndExplosion.play();
-  msg.style.color="red";
-  msg.textContent="💥 CÓDIGO INCORRECTO 💥";
-  setTimeout(()=>{arr=[];msg.textContent="";update();},2500);
+  alert("💥 Código incorrecto 💥");
+  arr=[];
+  cur="";
+  update();
 }
 
 function finale(){
   terminal.style.display="block";
-  const text=`SOY DE ZONA OESTE`;
+  const text="SOY DE ZONA OESTE";
   let i=0;
   const t=setInterval(()=>{
     terminal.textContent+=text[i++];
@@ -253,9 +264,9 @@ function finale(){
 }
 
 document.addEventListener("keydown",e=>{
-  if(e.key>="0"&&e.key<="9") add(e.key);
+  if(e.key>="0" && e.key<="9") add(e.key);
   if(e.key==="Backspace") clearCur();
-  if(e.key==="Enter") confirm();
+  if(e.key==="Enter") confirmCode();
 });
 </script>
 
