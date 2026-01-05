@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caja Fuerte</title>
+<title>Caja Fuerte Digital</title>
 
 <style>
 body{
@@ -12,72 +12,65 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#d9d9d9;
+  background:#2b2b2b;
   font-family:Arial, sans-serif;
 }
 
 .safe{
-  text-align:center;
-}
-
-.indicator{
-  font-size:30px;
-  margin-bottom:6px;
-}
-
-.dial-container{
+  background:#444;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.6);
   width:320px;
-  height:320px;
-  position:relative;
 }
 
-.dial-outer{
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  background:radial-gradient(#f5f5f5,#bdbdbd);
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+.display{
+  background:#111;
+  color:#0f0;
+  font-size:18px;
+  padding:10px;
+  border-radius:6px;
+  min-height:48px;
+  margin-bottom:15px;
+  word-wrap:break-word;
 }
 
-.number{
-  position:absolute;
-  font-size:16px;
-  font-weight:bold;
-  color:#222;
-  transform-origin:50% 150px;
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
 }
 
-.dial-inner{
-  width:180px;
-  height:180px;
-  border-radius:50%;
-  background:radial-gradient(#dcdcdc,#9e9e9e);
-  box-shadow:inset 0 0 10px rgba(0,0,0,.4);
-  position:absolute;
-  cursor:grab;
+button{
+  font-size:20px;
+  padding:14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-.dial-inner:active{
-  cursor:grabbing;
+.num{
+  background:#777;
+  color:white;
 }
 
-.center{
-  width:70px;
-  height:70px;
-  background:#888;
-  border-radius:50%;
-  margin:auto;
-  margin-top:55px;
-  box-shadow:inset 0 0 6px rgba(0,0,0,.6);
+.action{
+  background:#c0392b;
+  color:white;
 }
 
-.readout{
+.confirm{
+  background:#27ae60;
+  color:white;
+}
+
+.message{
   margin-top:15px;
+  text-align:center;
   font-size:18px;
   font-weight:bold;
+  color:#0f0;
+  display:none;
 }
 </style>
 </head>
@@ -85,81 +78,75 @@ body{
 <body>
 
 <div class="safe">
-  <div class="indicator">▲</div>
+  <div class="display" id="display"></div>
 
-  <div class="dial-container">
-    <div class="dial-outer" id="dialOuter">
-      <div class="dial-inner" id="dialInner">
-        <div class="center"></div>
-      </div>
-    </div>
+  <div class="keypad">
+    <button class="num" onclick="add('7')">7</button>
+    <button class="num" onclick="add('8')">8</button>
+    <button class="num" onclick="add('9')">9</button>
+
+    <button class="num" onclick="add('4')">4</button>
+    <button class="num" onclick="add('5')">5</button>
+    <button class="num" onclick="add('6')">6</button>
+
+    <button class="num" onclick="add('1')">1</button>
+    <button class="num" onclick="add('2')">2</button>
+    <button class="num" onclick="add('3')">3</button>
+
+    <button class="action" onclick="clearEntry()">⌫</button>
+    <button class="num" onclick="add('0')">0</button>
+    <button class="confirm" onclick="confirm()">✔</button>
   </div>
 
-  <div class="readout">
-    Número seleccionado: <span id="current">0</span>
-  </div>
+  <div class="message" id="message">SOY DE ZONA OESTE</div>
 </div>
 
 <script>
-const total = 100;
-const dialInner = document.getElementById("dialInner");
-const currentEl = document.getElementById("current");
-let rotation = 0;
-let isDragging = false;
-let startAngle = 0;
+const code = [
+  47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92
+];
 
-const rect = dialInner.getBoundingClientRect();
-const centerX = rect.left + rect.width / 2;
-const centerY = rect.top + rect.height / 2;
+let current = "";
+let entered = [];
 
-/* Números exteriores */
-const outer = document.getElementById("dialOuter");
-for(let i=0;i<total;i+=5){
-  const n = document.createElement("div");
-  n.className="number";
-  n.textContent=i;
-  const deg = i * (360/total);
-  n.style.transform=`rotate(${deg}deg) translateY(-150px) rotate(-${deg}deg)`;
-  outer.appendChild(n);
+const display = document.getElementById("display");
+const message = document.getElementById("message");
+
+function add(n){
+  current += n;
+  updateDisplay();
 }
 
-function getAngle(x,y){
-  return Math.atan2(y-centerY,x-centerX) * 180 / Math.PI;
+function clearEntry(){
+  current = "";
+  updateDisplay();
 }
 
-function updateNumber(){
-  let normalized = ((rotation % 360) + 360) % 360;
-  let num = Math.round((normalized / 360) * total);
-  currentEl.textContent = num % total;
+function updateDisplay(){
+  display.textContent = entered.join(" - ") + (current ? (entered.length ? " - " : "") + current : "");
 }
 
-function startDrag(e){
-  isDragging = true;
-  const x = e.touches ? e.touches[0].clientX : e.clientX;
-  const y = e.touches ? e.touches[0].clientY : e.clientY;
-  startAngle = getAngle(x,y) - rotation;
+function confirm(){
+  if(current==="") return;
+
+  entered.push(Number(current));
+  current = "";
+  updateDisplay();
+
+  if(entered.length === code.length){
+    if(JSON.stringify(entered) === JSON.stringify(code)){
+      unlock();
+    }else{
+      entered=[];
+      updateDisplay();
+      alert("Código incorrecto");
+    }
+  }
 }
 
-function drag(e){
-  if(!isDragging) return;
-  const x = e.touches ? e.touches[0].clientX : e.clientX;
-  const y = e.touches ? e.touches[0].clientY : e.clientY;
-  rotation = getAngle(x,y) - startAngle;
-  dialInner.style.transform = `rotate(${rotation}deg)`;
-  updateNumber();
+function unlock(){
+  message.style.display="block";
 }
-
-function stopDrag(){
-  isDragging = false;
-}
-
-dialInner.addEventListener("mousedown",startDrag);
-document.addEventListener("mousemove",drag);
-document.addEventListener("mouseup",stopDrag);
-
-dialInner.addEventListener("touchstart",startDrag);
-document.addEventListener("touchmove",drag);
-document.addEventListener("touchend",stopDrag);
 </script>
 
 </body>
