@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caja Fuerte</title>
 
-<link rel="icon" href="data:image/svg+xml,
-<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
-<text y=%22.9em%22 font-size=%2290%22>🎄</text>
-</svg>">
-
 <style>
 body{
   margin:0;
@@ -24,7 +19,7 @@ body{
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.75);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -34,7 +29,7 @@ body{
 .modal{
   background:white;
   padding:25px;
-  max-width:500px;
+  max-width:520px;
   border-radius:16px;
   text-align:center;
 }
@@ -43,25 +38,39 @@ body{
   background:white;
   padding:20px;
   border-radius:16px;
-  width:340px;
-  display:none;
+  width:380px;
   box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
 
-.img-box img{
+.flip-container{
+  perspective:1000px;
+  position:relative;
+}
+
+.flip-inner{
+  width:100%;
+  transform-style:preserve-3d;
+  transition:transform 0.9s;
+}
+
+.flip-inner.flipped{
+  transform:rotateY(180deg);
+}
+
+.face{
+  backface-visibility:hidden;
+  position:absolute;
+  width:100%;
+}
+
+.face img{
   width:100%;
   border-radius:12px;
 }
 
-.rotate-btn{
-  margin:10px auto;
-  font-size:30px;
-  cursor:pointer;
-  text-align:center;
-}
-
 .safe{
-  display:none;
+  transform:rotateY(180deg);
+  backface-visibility:hidden;
 }
 
 .display{
@@ -91,155 +100,160 @@ button{
 .action{background:#c0392b;color:white;}
 .confirm{background:#27ae60;color:white;}
 
-.message{
-  margin-top:15px;
+.rotate-btn{
+  margin:12px auto;
+  font-size:32px;
+  cursor:pointer;
   text-align:center;
-  font-weight:bold;
-  display:none;
 }
 
-.confetti{
+.message{
+  margin-top:12px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.terminal{
   position:fixed;
   inset:0;
-  pointer-events:none;
+  background:black;
+  color:#00ff00;
+  font-family:monospace;
+  padding:30px;
+  display:none;
+  z-index:9000;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENSAJE INICIAL -->
+<!-- INTRO -->
 <div class="overlay" id="intro">
   <div class="modal">
     <p>
-Hola Jime, como estas? Volvi despues de tanto tiempo, perdon por no enviar nada la semana anterior!
-Espero hayas tenido un excelente inicio de año, y la hayan pasado bien en la bienvenida de año que armaron, no pude ir 😢!!<br><br>
-Hoy te voy a dejar 2 pistas para que ya descubras quien soy porque andas media perdida jajaja.<br><br>
-Para la primer pista vas a tener que acordarte un poco del colegio y buscar tu tabla periodica!
-Te dejo una pequeña ayuda, lo que importa son los numeros pero tambien el orden alfabetico...<br><br>
-Tambien te recomiendo anotar todo, vas a necesitar cada dato para obtener la pista que guarde bajo llave!<br><br>
+Hola Jime, como estas? Volvi despues de tanto tiempo, perdon por no enviar nada la semana anterior!<br><br>
+Hoy te voy a dejar 2 pistas para que ya descubras quien soy.<br>
+Para la primer pista vas a tener que acordarte del colegio y buscar tu tabla periodica.<br><br>
 Suerte, espero te diviertas!! 😁
     </p>
     <button onclick="start()">Aceptar</button>
   </div>
 </div>
 
-<div class="wrapper" id="wrapper">
+<div class="wrapper" id="wrapper" style="display:none">
 
-  <!-- CONTROL VOLUMEN -->
-  🔊 <input type="range" min="0" max="1" step="0.05" value="0.5" oninput="setVolume(this.value)">
+  <div class="flip-container">
+    <div class="flip-inner" id="flip">
 
-  <!-- IMAGEN PISTA -->
-  <div class="img-box" id="imgBox">
-    <img src="Pista.png">
-  </div>
+      <!-- PISTA -->
+      <div class="face">
+        <img src="Pista.png">
+      </div>
 
-  <!-- BOTON GIRAR -->
-  <div class="rotate-btn" onclick="toggle()">🔄️</div>
+      <!-- CAJA FUERTE -->
+      <div class="face safe">
+        <div class="display" id="display"></div>
 
-  <!-- CAJA FUERTE -->
-  <div class="safe" id="safe">
-    <div class="display" id="display"></div>
+        <div class="keypad">
+          <button class="num" onclick="add(7)">7</button>
+          <button class="num" onclick="add(8)">8</button>
+          <button class="num" onclick="add(9)">9</button>
+          <button class="num" onclick="add(4)">4</button>
+          <button class="num" onclick="add(5)">5</button>
+          <button class="num" onclick="add(6)">6</button>
+          <button class="num" onclick="add(1)">1</button>
+          <button class="num" onclick="add(2)">2</button>
+          <button class="num" onclick="add(3)">3</button>
+          <button class="action" onclick="clearCur()">⌫</button>
+          <button class="num" onclick="add(0)">0</button>
+          <button class="confirm" onclick="confirm()">✔</button>
+        </div>
 
-    <div class="keypad">
-      <button class="num" onclick="add(7)">7</button>
-      <button class="num" onclick="add(8)">8</button>
-      <button class="num" onclick="add(9)">9</button>
-      <button class="num" onclick="add(4)">4</button>
-      <button class="num" onclick="add(5)">5</button>
-      <button class="num" onclick="add(6)">6</button>
-      <button class="num" onclick="add(1)">1</button>
-      <button class="num" onclick="add(2)">2</button>
-      <button class="num" onclick="add(3)">3</button>
-      <button class="action" onclick="clearCur()">⌫</button>
-      <button class="num" onclick="add(0)">0</button>
-      <button class="confirm" onclick="confirm()">✔</button>
+        <div class="message" id="msg"></div>
+      </div>
+
     </div>
-
-    <div class="message" id="msg"></div>
   </div>
+
+  <div class="rotate-btn" onclick="flipCard()">🔄️</div>
 </div>
 
+<div class="terminal" id="terminal"></div>
+
 <!-- AUDIOS -->
-<audio id="sndClick" src="click.mp3"></audio>
-<audio id="sndConfirm" src="confirm.mp3"></audio>
-<audio id="sndError" src="error.mp3"></audio>
-<audio id="sndSuccess" src="success.mp3"></audio>
+<audio id="sndClick" src="beep-401570.mp3"></audio>
+<audio id="sndConfirm" src="correct-156911"></audio>
+<audio id="sndError" src="explosion-fx-343683.mp3"></audio>
+<audio id="sndSuccess" src="correct-156911.mp3"></audio>
+<audio id="sndExplosion" src="explosion-fx-343683.mp3"></audio>
 
 <script>
 const code=[47,13,13,18,33,4,24,26,71,12,7,28,102,8,16,22,92];
 let cur="",arr=[],used=false;
 
+const flip=document.getElementById("flip");
 const display=document.getElementById("display");
 const msg=document.getElementById("msg");
-const sounds=[sndClick,sndConfirm,sndError,sndSuccess];
-
-function setVolume(v){sounds.forEach(s=>s.volume=v);}
-function play(s){s.currentTime=0;s.play();}
+const terminal=document.getElementById("terminal");
 
 function start(){
-  document.getElementById("intro").style.display="none";
-  document.getElementById("wrapper").style.display="block";
+  intro.style.display="none";
+  wrapper.style.display="block";
 }
 
-function toggle(){
-  imgBox.style.display=imgBox.style.display==="none"?"block":"none";
-  safe.style.display=safe.style.display==="block"?"none":"block";
+function flipCard(){
+  flip.classList.toggle("flipped");
 }
 
 function update(){
   display.textContent=arr.join(" - ")+(cur?((arr.length?" - ":"")+cur):"");
 }
 
-function add(n){play(sndClick);cur+=n;update();}
-function clearCur(){cur="";update();}
+function add(n){
+  sndClick.currentTime=0; sndClick.play();
+  cur+=n; update();
+}
+
+function clearCur(){cur=""; update();}
 
 function confirm(){
   if(cur==="")return;
-  play(sndConfirm);
-  arr.push(Number(cur));cur="";update();
+  sndConfirm.play();
+  arr.push(Number(cur)); cur=""; update();
 
   if(arr.length===code.length){
     if(arr.every((v,i)=>v===code[i])){
-      play(sndSuccess);
-      msg.style.color="green";
-      msg.textContent="SOY DE ZONA OESTE";
-      msg.style.display="block";
-      launchConfetti();
+      sndSuccess.play();
+      finale();
     }else{
-      play(sndError);
-      msg.style.color="red";
-      msg.textContent="Código incorrecto 💥";
-      msg.style.display="block";
-      setTimeout(()=>{arr=[];update();msg.style.display="none"},3000);
+      explode();
     }
   }
 }
 
-document.addEventListener("keydown",e=>{
-  if(e.key>="0"&&e.key<="9")add(e.key);
-  if(e.key==="Backspace")clearCur();
-  if(e.key==="Enter")confirm();
-});
-
-function launchConfetti(){
-  for(let i=0;i<80;i++){
-    const d=document.createElement("div");
-    d.style.position="fixed";
-    d.style.left=Math.random()*100+"vw";
-    d.style.top="-10px";
-    d.style.width="8px";
-    d.style.height="8px";
-    d.style.background=`hsl(${Math.random()*360},100%,50%)`;
-    d.style.animation=`fall ${3+Math.random()*2}s linear`;
-    document.body.appendChild(d);
-    setTimeout(()=>d.remove(),5000);
-  }
+function explode(){
+  sndExplosion.play();
+  msg.style.color="red";
+  msg.textContent="💥 CÓDIGO INCORRECTO 💥";
+  setTimeout(()=>{arr=[];msg.textContent="";update();},2500);
 }
 
-const style=document.createElement("style");
-style.innerHTML=`@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}`;
-document.head.appendChild(style);
+function finale(){
+  terminal.style.display="block";
+  const text=`SOY DE ZONA OESTE`;
+  let i=0;
+  const t=setInterval(()=>{
+    terminal.textContent+=text[i++];
+    if(i>=text.length) clearInterval(t);
+  },90);
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key>="0"&&e.key<="9") add(e.key);
+  if(e.key==="Backspace") clearCur();
+  if(e.key==="Enter") confirm();
+});
 </script>
 
 </body>
